@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Arkadia MUD - Narzedzia</title>
+<style>
+:root {
+  --bg: #1a1a2e;
+  --bg2: #222240;
+  --bg3: #2a2a4a;
+  --fg: #e0e0e0;
+  --fg2: #aaaacc;
+  --accent: #4a90e2;
+  --accent2: #6cb0ff;
+  --green: #2e7d32;
+  --green2: #43a047;
+  --border: #3a3a5e;
+  --input-bg: #16162a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.tabs {
+  display: flex;
+  background: var(--bg2);
+  border-bottom: 2px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+}
+.tab-btn {
+  flex: 1; padding: 14px 8px;
+  background: none; border: none;
+  color: var(--fg2); font-size: 14px; font-weight: 600;
+  cursor: pointer; border-bottom: 3px solid transparent;
+  transition: all .2s;
+}
+.tab-btn.active { color: var(--accent2); border-bottom-color: var(--accent); background: var(--bg3); }
+.tab-content { display:none; padding: 16px; }
+.tab-content.active { display:block; }
+.section {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px; margin-bottom: 14px;
+}
+.section-title {
+  font-size: 12px; font-weight: 700; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+}
+.row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.row label { font-size: 13px; color: var(--fg2); min-width: 45px; }
+select {
+  background: var(--input-bg); color: var(--fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 8px 10px; font-size: 14px; flex: 1;
+  -webkit-appearance: none;
+}
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 10px 20px; border: none; border-radius: 6px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  transition: all .15s; color: white;
+}
+.btn-primary { background: var(--green); }
+.btn-primary:active { background: var(--green2); }
+.btn-secondary { background: var(--bg3); color: var(--fg); border: 1px solid var(--border); }
+.btn-secondary:active { background: var(--border); }
+.btn-block { width: 100%; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-group { display:flex; gap:8px; margin-top:12px; }
+.domain-btns { display:flex; gap:8px; margin-bottom:12px; }
+.domain-btn {
+  flex: 1; padding: 12px; border: 2px solid var(--border);
+  border-radius: 8px; background: var(--bg3);
+  color: var(--fg2); font-size: 14px; font-weight: 700;
+  cursor: pointer; text-align: center; transition: all .15s;
+}
+.domain-btn.active { border-color: var(--accent); color: var(--accent2); background: rgba(74,144,226,.15); }
+.result-box {
+  background: var(--input-bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 12px;
+  font-family: 'Courier New', monospace; font-size: 12px;
+  line-height: 1.6; white-space: pre; overflow-x: auto; overflow-y: auto;
+  max-height: 60vh; -webkit-overflow-scrolling: touch;
+}
+.spinner-row { display: flex; align-items: center; gap: 4px; }
+.spin-group { display:flex; flex-direction:column; align-items:center; }
+.spin-label { font-size: 10px; color: var(--fg2); text-transform: lowercase; margin-bottom: 2px; letter-spacing: 0.5px; }
+.rl-spacer { height: 12px; }
+.ig-row {
+  display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap;
+}
+.ig-group { display:flex; flex-direction:column; }
+.ig-group-label { font-size: 10px; color: var(--fg2); margin-bottom: 2px; letter-spacing: 0.5px; text-align: center; }
+.ig-group select { width: 100%; }
+.ig-group .spinner-row { justify-content: center; }
+.spin-btn {
+  width: 36px; height: 36px; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 6px;
+  color: var(--fg); font-size: 18px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.spin-btn:active { background: var(--accent); }
+.spin-val {
+  min-width: 50px; text-align: center;
+  font-size: 15px; font-weight: 600; color: var(--fg);
+}
+.spin-sep { font-size: 16px; font-weight: 700; color: var(--fg2); padding: 0 2px; }
+.rl-group { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.denom-row { display:flex; align-items:center; gap:6px; margin-bottom:10px; }
+.denom-label { font-size: 13px; min-width:70px; font-weight:600; }
+.denom-label.mth { color: #ab47bc; }
+.denom-label.zl { color: #ffd54f; }
+.denom-label.sr { color: #b0bec5; }
+.denom-label.mdz { color: #d4845e; }
+.denom-input {
+  flex: 1; background: var(--input-bg); color: var(--fg);
+  border: 1px solid var(--border); border-radius: 6px;
+  padding: 10px; font-size: 15px; text-align: center;
+  -webkit-appearance: none; -moz-appearance: textfield;
+}
+.denom-input::-webkit-inner-spin-button,
+.denom-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.info-text { font-size: 11px; color: var(--fg2); text-align:center; margin-top:6px; }
+.memory-indicator {
+  font-size: 11px; color: var(--green2);
+  padding: 4px 8px; background: rgba(46,125,50,.15);
+  border-radius: 4px; text-align: center; margin-bottom: 10px;
+}
+.no-data-msg { color: var(--fg2); font-style: italic; text-align: center; padding: 20px; }
+.ver { text-align:center; font-size:10px; color:#555; padding:20px 0 10px; }
+
+@media (max-width: 480px) {
+  .tab-content { padding: 10px; }
+  .section { padding: 10px; }
+  .row label { display: none; }
+  .rl-group { gap: 2px; justify-content: center; width: 100%; }
+  .spin-btn { width: 30px; height: 30px; font-size: 16px; }
+  .spin-val { min-width: 34px; font-size: 13px; }
+  .spin-sep { padding: 0 1px; font-size: 14px; }
+  .spin-label { font-size: 9px; }
+  .result-box { font-size: 10px; padding: 8px; }
+  .denom-label { min-width: 55px; font-size: 12px; }
+  .denom-input { padding: 8px; font-size: 13px; }
+  .btn { padding: 10px 14px; font-size: 13px; }
+  .domain-btn { padding: 10px; font-size: 13px; }
+  .info-text { font-size: 10px; }
+}
+
+@media (max-width: 360px) {
+  .tab-content { padding: 8px; }
+  .section { padding: 8px; }
+  .spin-btn { width: 26px; height: 26px; font-size: 14px; }
+  .spin-val { min-width: 28px; font-size: 12px; }
+  .result-box { font-size: 9px; padding: 6px; }
+  .denom-label { min-width: 50px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('kalendarz')">📅 Kalendarz</button>
+  <button class="tab-btn" onclick="switchTab('denominacja')">💰 Denominacja</button>
+</div>
+
+<div id="tab-kalendarz" class="tab-content active">
+  <div class="section">
+    <div class="section-title">Domena</div>
+    <div class="domain-btns">
+      <div class="domain-btn active" id="btn-imperium" onclick="setDomain('imperium')">⚔️ IMPERIUM</div>
+      <div class="domain-btn" id="btn-ishtar" onclick="setDomain('ishtar')">🐺 ISHTAR</div>
+    </div>
+    <div id="memory-info"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Czas RL</div>
+    <div class="row">
+      <label>Data</label>
+      <div class="rl-group">
+        <div class="spin-group">
+          <span class="spin-label">dzień</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinRL('rl-d',-1)">&minus;</button>
+            <span class="spin-val" id="rl-d">15</span>
+            <button class="spin-btn" onclick="spinRL('rl-d',1)">+</button>
+          </div>
+        </div>
+        <span class="spin-sep">-</span>
+        <div class="spin-group">
+          <span class="spin-label">miesiąc</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinRL('rl-m',-1)">&minus;</button>
+            <span class="spin-val" id="rl-m">02</span>
+            <button class="spin-btn" onclick="spinRL('rl-m',1)">+</button>
+          </div>
+        </div>
+        <span class="spin-sep">-</span>
+        <div class="spin-group">
+          <span class="spin-label">rok</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinRL('rl-y',-1)">&minus;</button>
+            <span class="spin-val" id="rl-y">2026</span>
+            <button class="spin-btn" onclick="spinRL('rl-y',1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="rl-spacer"></div>
+    <div class="row">
+      <label>Czas</label>
+      <div class="rl-group">
+        <div class="spin-group">
+          <span class="spin-label">godz.</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinRL('rl-h',-1)">&minus;</button>
+            <span class="spin-val" id="rl-h">12</span>
+            <button class="spin-btn" onclick="spinRL('rl-h',1)">+</button>
+          </div>
+        </div>
+        <span class="spin-sep">:</span>
+        <div class="spin-group">
+          <span class="spin-label">min.</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinRL('rl-mi',-1)">&minus;</button>
+            <span class="spin-val" id="rl-mi">00</span>
+            <button class="spin-btn" onclick="spinRL('rl-mi',1)">+</button>
+          </div>
+        </div>
+        <span class="spin-sep">:</span>
+        <div class="spin-group">
+          <span class="spin-label">sek.</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinRL('rl-s',-1)">&minus;</button>
+            <span class="spin-val" id="rl-s">00</span>
+            <button class="spin-btn" onclick="spinRL('rl-s',1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:right;margin-top:4px">
+      <button class="btn btn-sm btn-secondary" onclick="setNowRL()">Teraz</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Czas IG</div>
+    <div id="ig-imperium">
+      <div class="ig-row">
+        <div class="ig-group" style="flex:1;min-width:120px">
+          <span class="ig-group-label" style="text-align:left;padding-left:2px">miesiąc</span>
+          <select id="imp-month" onchange="onImpMonthChange()"></select>
+        </div>
+        <div class="ig-group">
+          <span class="ig-group-label">dzień</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinIG('imp-day',-1)">&minus;</button>
+            <span class="spin-val" id="imp-day">1</span>
+            <button class="spin-btn" onclick="spinIG('imp-day',1)">+</button>
+          </div>
+        </div>
+        <div class="ig-group">
+          <span class="ig-group-label">godz.</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinIG('imp-hour',-1)">&minus;</button>
+            <span class="spin-val" id="imp-hour">12</span>
+            <button class="spin-btn" onclick="spinIG('imp-hour',1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="ig-ishtar" style="display:none">
+      <div class="ig-row">
+        <div class="ig-group" style="flex:1;min-width:120px">
+          <span class="ig-group-label" style="text-align:left;padding-left:2px">pora roku</span>
+          <select id="ish-season"></select>
+        </div>
+        <div class="ig-group">
+          <span class="ig-group-label">dzień</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinIG('ish-day',-1)">&minus;</button>
+            <span class="spin-val" id="ish-day">1</span>
+            <button class="spin-btn" onclick="spinIG('ish-day',1)">+</button>
+          </div>
+        </div>
+        <div class="ig-group">
+          <span class="ig-group-label">godz.</span>
+          <div class="spinner-row">
+            <button class="spin-btn" onclick="spinIG('ish-hour',-1)">&minus;</button>
+            <span class="spin-val" id="ish-hour">12</span>
+            <button class="spin-btn" onclick="spinIG('ish-hour',1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="info-text">Gra podaje czas w przybliżeniu (pełne godziny)</div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary btn-block" onclick="oblicz()">Oblicz</button>
+    <button class="btn btn-secondary" onclick="resetMemory()">Reset</button>
+  </div>
+
+  <div class="section" style="margin-top:14px">
+    <div class="section-title" id="cal-result-title">IMPERIUM - Wynik</div>
+    <div class="result-box" id="cal-result-box"><span class="no-data-msg">Brak danych dla IMPERIUM.
+Ustaw czas RL i IG, kliknij Oblicz.</span></div>
+  </div>
+</div>
+
+<div id="tab-denominacja" class="tab-content">
+  <div class="section">
+    <div class="section-title">Waluty</div>
+    <div class="info-text" style="margin-bottom:12px">12 mdz = 1 sr | 20 sr = 1 zł | 100 zł = 1 mth</div>
+    <div class="denom-row">
+      <span class="denom-label mth">💎 Mithryl</span>
+      <button class="spin-btn" onclick="denomSpin('d-mth',-1)">&minus;</button>
+      <input type="number" class="denom-input" id="d-mth" value="0" min="0" inputmode="numeric">
+      <button class="spin-btn" onclick="denomSpin('d-mth',1)">+</button>
+    </div>
+    <div class="denom-row">
+      <span class="denom-label zl">🥇 Złoto</span>
+      <button class="spin-btn" onclick="denomSpin('d-zl',-1)">&minus;</button>
+      <input type="number" class="denom-input" id="d-zl" value="0" min="0" inputmode="numeric">
+      <button class="spin-btn" onclick="denomSpin('d-zl',1)">+</button>
+    </div>
+    <div class="denom-row">
+      <span class="denom-label sr">🥈 Srebro</span>
+      <button class="spin-btn" onclick="denomSpin('d-sr',-1)">&minus;</button>
+      <input type="number" class="denom-input" id="d-sr" value="0" min="0" inputmode="numeric">
+      <button class="spin-btn" onclick="denomSpin('d-sr',1)">+</button>
+    </div>
+    <div class="denom-row">
+      <span class="denom-label mdz">🥉 Miedź</span>
+      <button class="spin-btn" onclick="denomSpin('d-mdz',-1)">&minus;</button>
+      <input type="number" class="denom-input" id="d-mdz" value="0" min="0" inputmode="numeric">
+      <button class="spin-btn" onclick="denomSpin('d-mdz',1)">+</button>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary btn-block" onclick="denomCalc()">Przelicz</button>
+    <button class="btn btn-secondary" onclick="denomClear()">Wyczyść</button>
+  </div>
+  <div id="denom-result" class="section" style="display:none;margin-top:14px">
+    <div class="section-title">Wynik denominacji</div>
+    <div class="result-box" id="denom-result-box"></div>
+  </div>
+</div>
+
+<div class="ver">Arkadia Narzędzia v1.7 | 24-06-2026</div>
+
+<script>
+"use strict";
+
+// ═══════════════════════════════════════════════════
+//  STORAGE (fallback na pamiec sesji)
+// ═══════════════════════════════════════════════════
+var _memFB = {};
+function sSet(k,v){ try{localStorage.setItem(k,v);}catch(e){_memFB[k]=v;} }
+function sGet(k){ try{var r=localStorage.getItem(k);return r!==null?r:(_memFB[k]||null);}catch(e){return _memFB[k]||null;} }
+function sDel(k){ try{localStorage.removeItem(k);}catch(e){} delete _memFB[k]; }
+
+// ═══════════════════════════════════════════════════
+//  DANE IMPERIUM
+// ═══════════════════════════════════════════════════
+var IMP_MS = 2000, IMP_YR = 400, IMP_MPD = 1440;
+
+// 1:1 z clock.ts (Empire): brak Geheimnistag, Nachgeheim 33 dni, rok 400 dni.
+// ss = godzina zachodu slonca (czas Arkadii) danego miesiaca.
+var IMP_MO = [
+  {n:"Hexenstag",d:1,ss:17,sr:8},{n:"Nachexen",d:32,ss:17,sr:8},{n:"Jahrdrung",d:33,ss:18,sr:7},
+  {n:"Mitterfruhl",d:1,ss:18,sr:7},{n:"Pflugzeit",d:33,ss:19,sr:6},{n:"Sigmarzeit",d:33,ss:20,sr:5},
+  {n:"Sommerzeit",d:33,ss:21,sr:5},{n:"Sonnstill",d:1,ss:22,sr:5},{n:"Vorgeheim",d:33,ss:22,sr:4},
+  {n:"Nachgeheim",d:33,ss:21,sr:5},{n:"Erntezeit",d:33,ss:20,sr:5},{n:"Mittherbst",d:1,ss:20,sr:5},
+  {n:"Brauzeit",d:33,ss:19,sr:6},{n:"Kaldezeit",d:33,ss:18,sr:6},{n:"Ulriczeit",d:33,ss:17,sr:7},
+  {n:"Mondstille",d:1,ss:16,sr:8},{n:"Vorhexen",d:33,ss:16,sr:8}
+];
+
+var IMP_PFX = [];
+(function(){var a=0;for(var i=0;i<IMP_MO.length;i++){IMP_PFX.push(a);a+=IMP_MO[i].d;}})();
+
+var IMP_NM = [
+  {d:13,m:"Nachexen"},{d:6,m:"Jahrdrung"},{d:31,m:"Jahrdrung"},
+  {d:22,m:"Pflugzeit"},{d:14,m:"Sigmarzeit"},{d:6,m:"Sommerzeit"},
+  {d:31,m:"Sommerzeit"},{d:22,m:"Vorgeheim"},{d:13,m:"Nachgeheim"},
+  {d:6,m:"Erntezeit"},{d:31,m:"Erntezeit"},{d:22,m:"Brauzeit"},
+  {d:14,m:"Kaldezeit"},{d:6,m:"Ulriczeit"},{d:31,m:"Ulriczeit"},
+  {d:22,m:"Vorhexen"}
+];
+
+var IMP_FM = [
+  {d:25,m:"Nachexen"},{d:18,m:"Jahrdrung"},{d:9,m:"Pflugzeit"},
+  {d:2,m:"Sigmarzeit"},{d:26,m:"Sigmarzeit"},{d:18,m:"Sommerzeit"},
+  {d:9,m:"Vorgeheim"},{d:1,m:"Nachgeheim"},{d:26,m:"Nachgeheim"},{d:18,m:"Erntezeit"},
+  {d:9,m:"Brauzeit"},{d:1,m:"Kaldezeit"},{d:26,m:"Kaldezeit"},
+  {d:18,m:"Ulriczeit"},{d:9,m:"Vorhexen"}
+];
+
+// Zachod slonca per dzien roku, wyliczony z tabeli miesiecy (jak w pluginie).
+var IMP_SSD = (function(){
+  var a=new Array(IMP_YR+1).fill(0);
+  for(var i=0;i<IMP_MO.length;i++){var s=IMP_PFX[i]+1;for(var d=0;d<IMP_MO[i].d;d++)a[s+d]=IMP_MO[i].ss;}
+  return a;
+})();
+
+// Granice por roku 1:1 z clock.ts (Empire) jako absolutny dzien roku.
+var IMP_SEA = [
+  {doy:18,n:"Pierwszy dzień wiosny"},
+  {doy:118,n:"Pierwszy dzień lata"},
+  {doy:218,n:"Pierwszy dzień jesieni"},
+  {doy:319,n:"Pierwszy dzień zimy"}
+];
+
+var IMP_INT = [
+  {m:"Hexenstag",d:1,n:"Hexentag"},{m:"Mitterfruhl",d:1,n:"Mitterfruhl"},
+  {m:"Sonnstill",d:1,n:"Sonnstill"},{m:"Mittherbst",d:1,n:"Mittherbst"},
+  {m:"Mondstille",d:1,n:"Mondstille"}
+];
+
+function impMi(name){var k=name.toLowerCase();for(var i=0;i<IMP_MO.length;i++)if(IMP_MO[i].n.toLowerCase()===k)return i;return -1;}
+function impDoy(mo,day){var i=impMi(mo);return i<0?null:IMP_PFX[i]+day;}
+function impDesc(doy){var d=doy;for(var i=0;i<IMP_MO.length;i++){if(d<=IMP_MO[i].d)return d+" "+IMP_MO[i].n;d-=IMP_MO[i].d;}return ""+doy;}
+function impDelta(fd,fh,fm,td,th,tm){var f=(fd-1)*IMP_MPD+fh*60+fm,t=(td-1)*IMP_MPD+th*60+tm,r=t-f;return r<0?r+IMP_YR*IMP_MPD:r;}
+function impToRL(gm){return Math.max(0,Math.round(gm*IMP_MS/60000));}
+function impSunset(doy){return IMP_SSD[impNorm(doy)];}
+
+var IMP_SR = (function(){
+  var a=new Array(IMP_YR+1).fill(0);
+  for(var i=0;i<IMP_MO.length;i++){var s=IMP_PFX[i]+1;for(var d=0;d<IMP_MO[i].d;d++)a[s+d]=IMP_MO[i].sr;}
+  return a;
+})();
+function impSunrise(doy){return IMP_SR[impNorm(doy)];}
+
+// --- 1:1 z pluginem imperium_cal: normalizacja doy, mapy, Geheimnisnacht, timing ---
+var IMP_GN = [
+  {d:1,m:"Nachgeheim"},{d:26,m:"Nachgeheim"},{d:18,m:"Erntezeit"},
+  {d:9,m:"Brauzeit"},{d:1,m:"Kaldezeit"}
+];
+var GN_WS = 20*60, GN_WE = 21*60, GN_PR = 20*60+30, GN_YRS = 4, GN_CLU = 180*60*1000;
+var GN_NIGHT_MIN = 21*60, GN_NIGHT_OFF = 3;
+
+function impNorm(doy){var m=(((doy-1)%IMP_YR)+IMP_YR)%IMP_YR;return m+1;}
+function impMD(doy){var d=impNorm(doy);for(var i=IMP_MO.length-1;i>=0;i--){if(d>IMP_PFX[i])return{m:IMP_MO[i].n,d:d-IMP_PFX[i]};}return null;}
+function impSortedDoy(list){var out=[];for(var i=0;i<list.length;i++){var doy=impDoy(list[i].m,list[i].d);if(doy!=null)out.push(impNorm(doy));}return out.sort(function(a,b){return a-b;});}
+var IMP_SNM = impSortedDoy(IMP_NM);
+var IMP_SFM = impSortedDoy(IMP_FM);
+var IMP_NM_IDX = {};
+(function(){for(var i=0;i<IMP_NM.length;i++){var doy=impDoy(IMP_NM[i].m,IMP_NM[i].d);if(doy!=null)IMP_NM_IDX[impNorm(doy)]=i;}})();
+
+function impNext(day,hour,min,sorted){var nd=impNorm(day),mid=(hour===0&&min===0);for(var i=0;i<sorted.length;i++){var d=sorted[i];if(d>nd)return d;if(d===nd&&mid)return d;}return sorted[0]||1;}
+
+function impTiming(L,day,hour,min,baseMs,doy){
+  var d=impNorm(doy);
+  if(impNorm(day)===d){
+    var mEnd=(24-hour)*60-min;
+    L.push("    Dziś (dzień "+d+")");
+    L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+mEnd*IMP_MS))+")");
+    return;
+  }
+  var dMin=impDelta(day,hour,min,d,0,0);
+  L.push("    Data RL: "+fDt(new Date(baseMs+dMin*IMP_MS)));
+  L.push("    Za:      "+fRD(impToRL(dMin)));
+}
+
+function impHexennacht(day,hour,min){
+  var nd=(24-impSunset(1)+impSunrise(2))*60;
+  var base=impDelta(day,hour,min,1,impSunset(1),0);
+  var db=base-IMP_YR*IMP_MPD;
+  if(db>-nd)return{trwa:true,dMin:nd+db};
+  return{trwa:false,dMin:base};
+}
+
+function impGN(day,hour,min,baseMs){
+  var yearMin=IMP_YR*IMP_MPD,cands=[];
+  for(var fi=0;fi<IMP_GN.length;fi++){
+    var fdoy=impDoy(IMP_GN[fi].m,IMP_GN[fi].d);if(fdoy==null)continue;
+    var ancDoy=impNorm(fdoy),ancSh=impSunset(ancDoy);
+    var baseDelta=impDelta(day,hour,min,ancDoy,ancSh,0);
+    for(var k=0;k<GN_YRS;k++){
+      var dmA=baseDelta+k*yearMin,realMsA=baseMs+dmA*IMP_MS;
+      var cA=new Date(realMsA),cmA=cA.getHours()*60+cA.getMinutes();
+      if(cmA<GN_WS||cmA>GN_WE)continue;
+      for(var off=0;off<=GN_NIGHT_OFF;off++){
+        var gnDm=dmA+off*IMP_MPD,realMsGn=baseMs+gnDm*IMP_MS;
+        var cG=new Date(realMsGn),cmG=cG.getHours()*60+cG.getMinutes();
+        if(cmG<GN_NIGHT_MIN)continue;
+        var gnDoy=impNorm(fdoy+off),gnSs=impSunset(gnDoy),gnSr=impSunrise(impNorm(gnDoy+1));
+        var nd=(24-gnSs+gnSr)*60,gnRem=baseDelta+off*IMP_MPD;
+        if(gnRem>yearMin-nd&&gnRem<yearMin)return{trwa:true,dMin:gnRem-(yearMin-nd),nightDoy:gnDoy};
+        cands.push({dMin:gnDm,nightDoy:gnDoy,realMs:realMsGn,dist:Math.abs(cmA-GN_PR)});
+        break;
+      }
+    }
+  }
+  if(!cands.length)return null;
+  var t0=cands[0].realMs;
+  for(var i=0;i<cands.length;i++)if(cands[i].realMs<t0)t0=cands[i].realMs;
+  var best=null;
+  for(var i=0;i<cands.length;i++){var c=cands[i];if(c.realMs>t0+GN_CLU)continue;if(best===null||c.dist<best.dist||(c.dist===best.dist&&c.realMs<best.realMs))best=c;}
+  return best?{trwa:false,dMin:best.dMin,nightDoy:best.nightDoy}:null;
+}
+
+// ═══════════════════════════════════════════════════
+//  DANE ISHTAR
+// ═══════════════════════════════════════════════════
+var ISH_SPM = 2, ISH_DPS = 45, ISH_MS = 2000;
+var ISH_SS = ["Yule","Imbaelk","Birke","Blathe","Feainn","Lammas","Velen","Saovine"];
+var ISH_DPY = ISH_SS.length * ISH_DPS;
+var ISH_MPD = 1440, ISH_YGM = ISH_DPY * ISH_MPD;
+var ISH_BELL = 135, ISH_HGM = 1440, ISH_FD = 3;
+
+var ISH_FMW = [
+  {s:4,e:6},{s:28,e:30},{s:52,e:54},{s:76,e:78},{s:100,e:102},
+  {s:124,e:126},{s:148,e:150},{s:172,e:174},{s:196,e:198},
+  {s:222,e:224},{s:244,e:246},{s:268,e:270},{s:292,e:294},
+  {s:316,e:318},{s:340,e:342}
+];
+
+var ISH_SUN = {Yule:16,Imbaelk:18,Birke:19,Blathe:21,Feainn:20,Lammas:20,Velen:18,Saovine:17};
+
+function ishSi(d){return Math.min(Math.max(0,Math.floor((d-1)/ISH_DPS)),ISH_SS.length-1);}
+function ishSn(d){return ISH_SS[ishSi(d)];}
+function ishDusk(d){return ISH_SUN[ishSn(d)];}
+function ishBDay(season){var i=ISH_SS.indexOf(season),p=(i-1+ISH_SS.length)%ISH_SS.length;return p*ISH_DPS+ISH_DPS;}
+function ishGm(d,h,m){return(d-1)*ISH_MPD+h*60+(m||0);}
+function ishIn(now,st,w){if(w<=0)return false;var e=st+w;if(e<=ISH_YGM)return now>=st&&now<e;return now>=st||now<(e-ISH_YGM);}
+function ishUE(now,st,w){if(w<=0)return 0;var e=st+w;if(e<=ISH_YGM)return Math.max(0,e-now);var ew=e-ISH_YGM;return now>=st?ISH_YGM-now+ew:Math.max(0,ew-now);}
+function ishDelta(fd,fh,fm,td,th,tm){var f=(fd-1)*ISH_MPD+fh*60+fm,t=(td-1)*ISH_MPD+th*60+tm,r=t-f;return r<0?r+ISH_YGM:r;}
+function ishToRL(gm){return Math.max(0,Math.round(gm*ISH_SPM*1000/60000));}
+
+// ═══════════════════════════════════════════════════
+//  FORMATOWANIE
+// ═══════════════════════════════════════════════════
+function p2(n){return String(n).padStart(2,"0");}
+function fRD(rm){var d=Math.floor(rm/1440),h=Math.floor((rm%1440)/60),m=rm%60;return d+"d "+h+"h "+m+"m";}
+function fRDP(rm){var d=Math.floor(rm/1440),h=Math.floor((rm%1440)/60),m=rm%60;return d+"d "+p2(h)+"h "+p2(m)+"m";}
+function fDt(dt){return p2(dt.getDate())+"-"+p2(dt.getMonth()+1)+"-"+dt.getFullYear()+" "+p2(dt.getHours())+":"+p2(dt.getMinutes());}
+function fDtS(dt){return fDt(dt)+":"+p2(dt.getSeconds());}
+function fTD(s){if(s<0)s=0;var d=Math.floor(s/86400);s%=86400;var h=Math.floor(s/3600);s%=3600;var m=Math.floor(s/60);s%=60;return d+"d:"+p2(h)+"h:"+p2(m)+"m:"+p2(s)+"s";}
+function fGD(gm){if(gm<0)gm=0;var d=Math.floor(gm/1440),r=gm%1440,h=Math.floor(r/60),m=r%60;return d+"d:"+p2(h)+"h:"+p2(m)+"m";}
+
+// ═══════════════════════════════════════════════════
+//  EVENTY IMPERIUM
+// ═══════════════════════════════════════════════════
+function impEvents(day,hour,min,now){
+  var L=[],bt=new Date(now.getTime());bt.setSeconds(0,0);var baseMs=bt.getTime();
+  L.push("NAJBLIŻSZE WYDARZENIA - IMPERIUM\n");
+
+  var hxD=impDoy("Hexenstag",1)||1;
+  L.push("Główne święta interkalarne:");
+  L.push("  *** Hexentag ***");
+  impTiming(L,day,hour,min,baseMs,hxD);
+
+  var hn=impHexennacht(day,hour,min);
+  L.push("  *** Hexennacht ***");
+  if(hn.trwa){L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+hn.dMin*IMP_MS))+")");}
+  else{L.push("    Data RL: "+fDt(new Date(baseMs+hn.dMin*IMP_MS)));L.push("    Za:      "+fRD(impToRL(hn.dMin)));}
+
+  var gn=impGN(day,hour,min,baseMs);
+  if(gn){
+    var md=impMD(gn.nightDoy);
+    var lbl=md?(md.m+" "+md.d+", dzień "+gn.nightDoy):("dzień "+gn.nightDoy);
+    L.push("  *** Geheimnisnacht ("+lbl+") ***");
+    if(gn.trwa){L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+gn.dMin*IMP_MS))+")");}
+    else{L.push("    Data RL: "+fDt(new Date(baseMs+gn.dMin*IMP_MS)));L.push("    Za:      "+fRD(impToRL(gn.dMin)));}
+  }
+
+  var seas=[];
+  for(var i=0;i<IMP_SEA.length;i++){
+    var doy=IMP_SEA[i].doy;
+    seas.push({n:IMP_SEA[i].n,doy:doy,isT:impNorm(day)===impNorm(doy),dm:impDelta(day,hour,min,doy,0,0)});
+  }
+  var sel=null;
+  for(var i=0;i<seas.length;i++)if(seas[i].isT){sel=seas[i];break;}
+  if(!sel)sel=seas.slice().sort(function(a,b){return a.dm-b.dm;})[0];
+  L.push("\nNajbliższe wydarzenie sezonowe:");
+  if(sel){L.push("  "+sel.n);impTiming(L,day,hour,min,baseMs,sel.doy);}
+
+  L.push("\nNajbliższe wydarzenia księżycowe:");
+  var ndMoon=impNorm(day);
+  var todayNM=(IMP_NM_IDX[ndMoon]!==undefined)?IMP_NM_IDX[ndMoon]:-1;
+  if(todayNM>=0){
+    var sh=impSunset(ndMoon);
+    L.push("  *** Nów astronomiczny ***");
+    impTiming(L,day,hour,min,baseMs,ndMoon);
+    if(typeof sh==="number"&&hour>=sh){
+      var mEnd=(24-hour)*60-min;
+      L.push("  +++ Nów widoczny TERAZ +++");
+      L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+mEnd*IMP_MS))+")");
+      L.push("    Zachód:  "+p2(sh)+":00 IG");
+    }else if(typeof sh==="number"){
+      var mSun=(sh-hour)*60-min;
+      L.push("  +++ Nów widoczny dziś po zachodzie słońca +++");
+      L.push("    Data RL: "+fDt(new Date(baseMs+mSun*IMP_MS)));
+      L.push("    Zachód:  "+p2(sh)+":00 IG");
+      L.push("    Za:      "+fRD(impToRL(mSun)));
+    }
+  }else{
+    var newDoy=impNext(day,hour,min,IMP_SNM);
+    var newDm=impDelta(day,hour,min,newDoy,0,0);
+    L.push("  *** Nów astronomiczny ***");
+    L.push("    Data RL: "+fDt(new Date(baseMs+newDm*IMP_MS)));
+    L.push("    Za:      "+fRD(impToRL(newDm)));
+    var sh2=impSunset(newDoy);
+    if(typeof sh2==="number"){
+      var sunDm=impDelta(day,hour,min,newDoy,sh2,0);
+      L.push("  +++ Nów widoczny po zachodzie słońca +++");
+      L.push("    Data RL: "+fDt(new Date(baseMs+sunDm*IMP_MS)));
+      L.push("    Zachód:  "+p2(sh2)+":00 IG");
+      L.push("    Za:      "+fRD(impToRL(sunDm)));
+    }
+  }
+
+  var ndFull=impNorm(day);
+  var fullDoy=(IMP_SFM.indexOf(ndFull)>=0)?ndFull:impNext(day,hour,min,IMP_SFM);
+  L.push("  Pełnia astronomiczna");
+  impTiming(L,day,hour,min,baseMs,fullDoy);
+
+  var oth=[];
+  for(var i=0;i<IMP_INT.length;i++){
+    var nm=IMP_INT[i].n.toLowerCase();
+    if(nm.indexOf("hexentag")>=0)continue;
+    var doy2=impDoy(IMP_INT[i].m,IMP_INT[i].d)||1;
+    var isT=impNorm(day)===impNorm(doy2);
+    oth.push({n:IMP_INT[i].n,doy:doy2,sk:isT?-1:impDelta(day,hour,min,doy2,0,0)});
+  }
+  oth.sort(function(a,b){return a.sk-b.sk;});
+  L.push("\nInne święta interkalarne:");
+  for(var i=0;i<oth.length;i++){L.push("  "+oth[i].n);impTiming(L,day,hour,min,baseMs,oth[i].doy);}
+
+  return L.join("\n");
+}
+
+// ═══════════════════════════════════════════════════
+//  EVENTY ISHTAR
+// ═══════════════════════════════════════════════════
+function ishEvents(day,hour,min,now){
+  var L=[],ms=now.getTime(),nGm=ishGm(day,hour,min);
+  L.push("NAJBLIŻSZE WYDARZENIA - ISHTAR\n");
+
+  function mainMag(name,eD,eH,wGm,extra){
+    var st=ishGm(eD,eH,0),act=ishIn(nGm,st,wGm);
+    var dm=ishDelta(day,hour,min,eD,eH,0);
+    L.push("  *** "+name+(extra||"")+" ***");
+    if(act&&wGm>0){var ue=ishUE(nGm,st,wGm);L.push("    TRWA TERAZ (do "+fDt(new Date(ms+ue*ISH_MS))+")");}
+    else{L.push("    Data RL: "+fDt(new Date(ms+dm*ISH_MS)));L.push("    Za:      "+fRDP(ishToRL(dm)));}
+  }
+
+  var bDk=ishDusk(ISH_BELL),svD=ishBDay("Saovine"),svDk=ishDusk(svD);
+  var mm=[
+    {name:"Belleteyn",eD:ISH_BELL,eH:bDk,extra:" (dzień "+ISH_BELL+")"},
+    {name:"Saovine",eD:svD,eH:svDk,extra:""}
+  ];
+  function mmKey(o){var st=ishGm(o.eD,o.eH,0);return ishIn(nGm,st,ISH_HGM)?0:ishDelta(day,hour,min,o.eD,o.eH,0);}
+  mm.sort(function(a,b){return mmKey(a)-mmKey(b);});
+  L.push("Główne święta magiczne:");
+  for(var i=0;i<mm.length;i++)mainMag(mm[i].name,mm[i].eD,mm[i].eH,ISH_HGM,mm[i].extra);
+
+  var ev=[];
+  function addBnd(name,season,kind,emph){
+    var sd=ishBDay(season),sh=ishDusk(sd),st=ishGm(sd,sh,0);
+    var act=ishIn(nGm,st,ISH_HGM),dm=ishDelta(day,hour,min,sd,sh,0),rm=ishToRL(dm);
+    var dt=new Date(ms+dm*ISH_MS),endRl=null;
+    if(act){var ue=ishUE(nGm,st,ISH_HGM);endRl=new Date(ms+ue*ISH_MS);}
+    ev.push({name:name,kind:kind,emph:emph,sk:act?0:dm,act:act,dt:dt,rm:rm,eRl:endRl,dtE:null});
+  }
+  var aBnd=[["Midinvaerne","Yule"],["Birke","Birke"],["Midaete","Feainn"],["Velen","Velen"]];
+  for(var i=0;i<aBnd.length;i++)addBnd(aBnd[i][0],aBnd[i][1],"astronomiczne",false);
+  var mBnd=[["Imbaelk","Imbaelk"],["Lammas","Lammas"]];
+  for(var i=0;i<mBnd.length;i++)addBnd(mBnd[i][0],mBnd[i][1],"magiczne",false);
+
+  var fmA=null,fmB=null,fmBD=Infinity;
+  for(var i=0;i<ISH_FMW.length;i++){
+    var w=ISH_FMW[i],wGm=(w.e-w.s)*ISH_MPD,st=ishGm(w.s,0,0);
+    if(ishIn(nGm,st,wGm)){fmA={sd:w.s,wGm:wGm,st:st};break;}
+    var d=ishDelta(day,hour,min,w.s,0,0);
+    if(d<fmBD){fmBD=d;fmB={sd:w.s,wGm:wGm,st:st,delta:d};}
+  }
+  if(fmA){
+    var ue=ishUE(nGm,fmA.st,fmA.wGm);
+    ev.push({name:"Pełnia księżyca",kind:"ksiezycowe",emph:true,sk:0,act:true,dt:now,rm:0,eRl:new Date(ms+ue*ISH_MS),dtE:null});
+  }else if(fmB){
+    ev.push({name:"Pełnia księżyca",kind:"ksiezycowe",emph:true,sk:fmB.delta,act:false,dt:new Date(ms+fmB.delta*ISH_MS),rm:ishToRL(fmB.delta),eRl:null,dtE:null});
+  }
+
+  var fwGm=ISH_FD*ISH_MPD,fts=[];
+  for(var si=0;si<ISH_SS.length;si++){
+    var fd=si*ISH_DPS+6,fst=ishGm(fd,0,0),fa=ishIn(nGm,fst,fwGm);
+    var fdm=ishDelta(day,hour,min,fd,0,0),fdt=new Date(ms+fdm*ISH_MS);
+    if(fa){var ue2=ishUE(nGm,fst,fwGm);fts.push({sk:0,act:true,dt:fdt,rm:0,eRl:new Date(ms+ue2*ISH_MS),dtE:null});}
+    else{fts.push({sk:fdm,act:false,dt:fdt,rm:ishToRL(fdm),eRl:null,dtE:new Date(fdt.getTime()+fwGm*ISH_MS)});}
+  }
+  fts.sort(function(a,b){return a.sk-b.sk;});
+  for(var i=0;i<Math.min(2,fts.length);i++){
+    var f=fts[i];ev.push({name:"Festyn w Eysenlaan",kind:"festyn",emph:true,sk:f.sk,act:f.act,dt:f.dt,rm:f.rm,eRl:f.eRl,dtE:f.dtE});
+  }
+
+  ev.sort(function(a,b){return a.sk-b.sk;});
+
+  var kL={astronomiczne:"święto astronomiczne",magiczne:"święto magiczne",ksiezycowe:"wydarzenie księżycowe",festyn:"festyn"};
+  L.push("\nInne najbliższe wydarzenia:");
+  for(var i=0;i<Math.min(10,ev.length);i++){
+    var e=ev[i],lbl=kL[e.kind]||e.kind;
+    L.push(e.emph?"  *** "+e.name+" ("+lbl+") ***":"  "+e.name+" ("+lbl+")");
+    if(e.act){L.push(e.eRl?"    TRWA TERAZ (do "+fDt(e.eRl)+")":"    TRWA TERAZ");}
+    else if(e.dtE){L.push("    Od:      "+fDt(e.dt));L.push("    Do:      "+fDt(e.dtE));L.push("    Za:      "+fRDP(e.rm));}
+    else{L.push("    Data RL: "+fDt(e.dt));L.push("    Za:      "+fRDP(e.rm));}
+  }
+
+  return L.join("\n");
+}
+
+// ═══════════════════════════════════════════════════
+//  UI
+// ═══════════════════════════════════════════════════
+var curDom = "imperium";
+
+function switchTab(id){
+  document.querySelectorAll(".tab-content").forEach(function(el){el.classList.remove("active");});
+  document.querySelectorAll(".tab-btn").forEach(function(el){el.classList.remove("active");});
+  document.getElementById("tab-"+id).classList.add("active");
+  var btns=document.querySelectorAll(".tab-btn");
+  for(var i=0;i<btns.length;i++){if(btns[i].textContent.toLowerCase().indexOf(id)>=0)btns[i].classList.add("active");}
+}
+
+function setDomain(d){
+  curDom=d;
+  document.getElementById("btn-imperium").classList.toggle("active",d==="imperium");
+  document.getElementById("btn-ishtar").classList.toggle("active",d==="ishtar");
+  document.getElementById("ig-imperium").style.display=d==="imperium"?"":"none";
+  document.getElementById("ig-ishtar").style.display=d==="ishtar"?"":"none";
+  updateMemInfo();
+  restoreFromMem();
+  showDomResult();
+}
+
+// ═══════════════════════════════════════════════════
+//  SPINNERY RL
+// ═══════════════════════════════════════════════════
+function dimY(m,y){return new Date(y,m,0).getDate();}
+function gSI(id){return parseInt(document.getElementById(id).textContent)||0;}
+function sSV(id,v){document.getElementById(id).textContent=(id==="rl-y")?v:p2(v);}
+
+function spinRL(id,delta){
+  var v=gSI(id);
+  if(id==="rl-d"){var m=gSI("rl-m"),y=gSI("rl-y"),mx=dimY(m,y);v+=delta;if(v<1)v=mx;if(v>mx)v=1;}
+  else if(id==="rl-m"){v+=delta;if(v<1)v=12;if(v>12)v=1;var d=gSI("rl-d"),y=gSI("rl-y"),mx=dimY(v,y);if(d>mx)sSV("rl-d",mx);}
+  else if(id==="rl-y"){v+=delta;if(v<2020)v=2020;if(v>2040)v=2040;var d=gSI("rl-d"),m=gSI("rl-m"),mx=dimY(m,v);if(d>mx)sSV("rl-d",mx);}
+  else if(id==="rl-h"){v+=delta;if(v<0)v=23;if(v>23)v=0;}
+  else{v+=delta;if(v<0)v=59;if(v>59)v=0;}
+  sSV(id,v);
+}
+
+function setNowRL(){
+  var n=new Date();
+  sSV("rl-d",n.getDate());sSV("rl-m",n.getMonth()+1);sSV("rl-y",n.getFullYear());
+  sSV("rl-h",n.getHours());sSV("rl-mi",n.getMinutes());sSV("rl-s",n.getSeconds());
+}
+
+function getRLDate(){
+  var d=gSI("rl-d"),m=gSI("rl-m"),y=gSI("rl-y"),h=gSI("rl-h"),mi=gSI("rl-mi"),s=gSI("rl-s");
+  if(y<2020||m<1||m>12||d<1||d>31)return null;
+  var dt=new Date(y,m-1,d,h,mi,s);
+  if(isNaN(dt.getTime())||dt.getMonth()!==m-1||dt.getDate()!==d)return null;
+  return dt;
+}
+
+// ═══════════════════════════════════════════════════
+//  SPINNERY IG
+// ═══════════════════════════════════════════════════
+function spinIG(id,delta){
+  var el=document.getElementById(id),v=parseInt(el.textContent)||0,lo=0,hi=23;
+  if(id==="imp-day"){lo=1;var mi=document.getElementById("imp-month").selectedIndex;hi=mi>=0?IMP_MO[mi].d:33;}
+  else if(id==="imp-hour"){lo=0;hi=23;}
+  else if(id==="ish-day"){lo=1;hi=ISH_DPS;}
+  else if(id==="ish-hour"){lo=0;hi=23;}
+  v+=delta;if(v<lo)v=hi;if(v>hi)v=lo;
+  el.textContent=v;
+}
+
+function onImpMonthChange(){
+  var mi=document.getElementById("imp-month").selectedIndex;
+  var mx=IMP_MO[mi].d,el=document.getElementById("imp-day");
+  var d=parseInt(el.textContent)||1;
+  if(d>mx)el.textContent=mx;
+}
+
+// ═══════════════════════════════════════════════════
+//  PAMIEC
+// ═══════════════════════════════════════════════════
+function saveMem(dom,rl,ig){
+  sSet("arkadia_cal_"+dom,JSON.stringify({rl:rl.toISOString(),ig_day:ig.day,ig_hour:ig.hour,ig_min:ig.min||0,ts:new Date().toISOString()}));
+}
+
+function loadMem(dom){
+  var raw=sGet("arkadia_cal_"+dom);
+  if(!raw)return null;
+  try{return JSON.parse(raw);}catch(e){return null;}
+}
+
+function resetMemory(){
+  sDel("arkadia_cal_"+curDom);
+  updateMemInfo();
+  showNoData();
+}
+
+function updateMemInfo(){
+  var el=document.getElementById("memory-info"),mem=loadMem(curDom);
+  if(mem){
+    var rl=new Date(mem.rl);
+    if(isNaN(rl.getTime())){el.innerHTML="";return;}
+    el.innerHTML='<div class="memory-indicator">Pamięć: '+curDom.toUpperCase()+" | RL: "+fDt(rl)+" | IG dzień "+mem.ig_day+" godz "+mem.ig_hour+"</div>";
+  }else{el.innerHTML="";}
+}
+
+// ═══════════════════════════════════════════════════
+//  WYNIK
+// ═══════════════════════════════════════════════════
+function showNoData(){
+  var box=document.getElementById("cal-result-box");
+  box.innerHTML='<span class="no-data-msg">Brak danych dla '+curDom.toUpperCase()+".\nUstaw czas RL i IG, kliknij Oblicz.</span>";
+  document.getElementById("cal-result-title").textContent=curDom.toUpperCase()+" - Wynik";
+}
+
+function showDomResult(){
+  var mem=loadMem(curDom);
+  if(!mem){showNoData();return;}
+  var rl=new Date(mem.rl);
+  if(isNaN(rl.getTime())){showNoData();return;}
+  var ig={day:mem.ig_day,hour:mem.ig_hour,min:mem.ig_min||0};
+  var out=buildOutput(curDom,rl,ig);
+  if(!out){showNoData();return;}
+  document.getElementById("cal-result-box").textContent=out;
+  document.getElementById("cal-result-title").textContent=curDom.toUpperCase()+" - Wynik";
+}
+
+function buildOutput(dom,rlDate,ig){
+  var now=new Date(),dSec=Math.max(0,Math.floor((now-rlDate)/1000)),dMin=dSec/60,out="";
+
+  if(dom==="imperium"){
+    var dy=ig.day,hr=ig.hour,mn=ig.min||0,yGm=IMP_YR*IMP_MPD;
+    if(dMin>=2){
+      var dGm=Math.floor(dSec*1000/IMP_MS);
+      var tot=(dy-1)*IMP_MPD+hr*60+mn+dGm;tot=((tot%yGm)+yGm)%yGm;
+      var nD=Math.floor(tot/IMP_MPD)+1,rem=tot%IMP_MPD,nH=Math.floor(rem/60),nM=rem%60;
+      out+="IMPERIUM - Ekstrapolowany czas w grze\n";
+      out+="============================================================\n";
+      out+="Początkowy czas IG:      Dzień "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
+      out+="Data IG:                 "+impDesc(dy)+"\n";
+      out+="Timestamp RL:            "+fDtS(rlDate)+"\n";
+      out+="Aktualny czas RL:        "+fDtS(now)+"\n";
+      out+="Delta RL:                "+fTD(dSec)+"\n";
+      out+="Delta IG:                "+fGD(dGm)+"\n";
+      out+="Ekstrapolowany czas IG:  Dzień "+nD+", godzina "+p2(nH)+":"+p2(nM)+"\n";
+      out+="Data IG:                 "+impDesc(nD)+"\n";
+      out+="============================================================\n\n";
+      out+=impEvents(nD,nH,nM,now);
+    }else{
+      out+="IMPERIUM - Czas w grze\n";
+      out+="============================================================\n";
+      out+="Czas IG: Dzień "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
+      out+="Data IG: "+impDesc(dy)+"\n";
+      out+="============================================================\n\n";
+      out+=impEvents(dy,hr,mn,rlDate);
+    }
+  }else{
+    var dy=ig.day,hr=ig.hour,mn=ig.min||0;
+    if(dMin>=2){
+      var dGm=Math.floor(dSec/ISH_SPM);
+      var tot=(dy-1)*ISH_MPD+hr*60+mn+dGm;tot=((tot%ISH_YGM)+ISH_YGM)%ISH_YGM;
+      var nD=Math.floor(tot/ISH_MPD)+1,rem=tot%ISH_MPD,nH=Math.floor(rem/60),nM=rem%60;
+      var si=ishSi(nD),ds=((nD-1)%ISH_DPS)+1;
+      out+="ISHTAR - Ekstrapolowany czas w grze\n";
+      out+="============================================================\n";
+      out+="Początkowy czas IG:      Dzień "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
+      var isi=ishSi(dy),ids=((dy-1)%ISH_DPS)+1;
+      out+="Data IG:                 Dzień "+ids+", pora "+ISH_SS[isi]+"\n";
+      out+="Timestamp RL:            "+fDtS(rlDate)+"\n";
+      out+="Aktualny czas RL:        "+fDtS(now)+"\n";
+      out+="Delta RL:                "+fTD(dSec)+"\n";
+      out+="Delta IG:                "+fGD(dGm)+"\n";
+      out+="Ekstrapolowany czas IG:  Dzień "+nD+", godzina "+p2(nH)+":"+p2(nM)+"\n";
+      out+="Data IG:                 Dzień "+ds+", pora "+ISH_SS[si]+"\n";
+      out+="============================================================\n\n";
+      out+=ishEvents(nD,nH,nM,now);
+    }else{
+      var si=ishSi(dy),ds=((dy-1)%ISH_DPS)+1;
+      out+="ISHTAR - Czas w grze\n";
+      out+="============================================================\n";
+      out+="Czas IG: Dzień "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
+      out+="Data IG: Dzień "+ds+", pora "+ISH_SS[si]+"\n";
+      out+="============================================================\n\n";
+      out+=ishEvents(dy,hr,mn,rlDate);
+    }
+  }
+  return out;
+}
+
+function oblicz(){
+  var rl=getRLDate();
+  if(!rl){alert("Ustaw poprawną datę i czas RL!");return;}
+  var ig;
+  if(curDom==="imperium"){
+    var mi=document.getElementById("imp-month").selectedIndex;
+    var dm=parseInt(document.getElementById("imp-day").textContent)||1;
+    var hr=parseInt(document.getElementById("imp-hour").textContent)||0;
+    ig={day:IMP_PFX[mi]+dm,hour:hr,min:0};
+  }else{
+    var si=document.getElementById("ish-season").selectedIndex;
+    var ds=parseInt(document.getElementById("ish-day").textContent)||1;
+    var hr=parseInt(document.getElementById("ish-hour").textContent)||0;
+    ig={day:si*ISH_DPS+ds,hour:hr,min:0};
+  }
+  saveMem(curDom,rl,ig);
+  updateMemInfo();
+  var out=buildOutput(curDom,rl,ig);
+  document.getElementById("cal-result-box").textContent=out;
+  document.getElementById("cal-result-title").textContent=curDom.toUpperCase()+" - Wynik";
+  document.getElementById("cal-result-box").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// ═══════════════════════════════════════════════════
+//  DENOMINACJA
+// ═══════════════════════════════════════════════════
+function denomSpin(id,delta){var el=document.getElementById(id),v=parseInt(el.value)||0;el.value=Math.max(0,v+delta);}
+
+function denomCalc(){
+  var mth=Math.max(0,parseInt(document.getElementById("d-mth").value)||0);
+  var zl=Math.max(0,parseInt(document.getElementById("d-zl").value)||0);
+  var sr=Math.max(0,parseInt(document.getElementById("d-sr").value)||0);
+  var mdz=Math.max(0,parseInt(document.getElementById("d-mdz").value)||0);
+
+  var total=mdz+sr*12+zl*240+mth*24000;
+  var nM=Math.floor(total/24000),rest=total%24000;
+  var nZ=Math.floor(rest/240);rest=rest%240;
+  var nS=Math.floor(rest/12),nD=rest%12;
+
+  var inp=[];if(mth)inp.push(mth+" mth");if(zl)inp.push(zl+" zl");if(sr)inp.push(sr+" sr");if(mdz)inp.push(mdz+" mdz");
+  var out=[];if(nM)out.push(nM+" mth");if(nZ)out.push(nZ+" zl");if(nS)out.push(nS+" sr");if(nD)out.push(nD+" mdz");
+
+  var tf=total.toLocaleString("pl-PL");
+  var W=40;
+  var txt="=".repeat(W)+"\n  WYNIK DENOMINACJI\n"+"=".repeat(W)+"\n\n";
+  txt+="Wejście:  "+(inp.length?inp.join(", "):"0")+"\n\n";
+  txt+="Wynik:    "+(out.length?out.join(", "):"0")+"\n\n";
+  txt+="Łącznie:  "+tf+" mdz\n\n"+"=".repeat(W);
+
+  document.getElementById("denom-result-box").textContent=txt;
+  document.getElementById("denom-result").style.display="";
+}
+
+function denomClear(){
+  ["d-mth","d-zl","d-sr","d-mdz"].forEach(function(id){document.getElementById(id).value="0";});
+  document.getElementById("denom-result").style.display="none";
+}
+
+// ═══════════════════════════════════════════════════
+//  RESTORE SPINNERS FROM MEMORY
+// ═══════════════════════════════════════════════════
+function restoreFromMem(){
+  var mem=loadMem(curDom);
+  if(!mem)return;
+  var rl=new Date(mem.rl);
+  if(isNaN(rl.getTime()))return;
+
+  // RL spinners
+  sSV("rl-d",rl.getDate());sSV("rl-m",rl.getMonth()+1);sSV("rl-y",rl.getFullYear());
+  sSV("rl-h",rl.getHours());sSV("rl-mi",rl.getMinutes());sSV("rl-s",rl.getSeconds());
+
+  // IG spinners
+  var dy=mem.ig_day||1,hr=mem.ig_hour||0;
+  if(curDom==="imperium"){
+    // doy -> month index + day of month
+    var mi=0,rem=dy;
+    for(var i=0;i<IMP_MO.length;i++){
+      if(rem<=IMP_MO[i].d){mi=i;break;}
+      rem-=IMP_MO[i].d;
+    }
+    document.getElementById("imp-month").selectedIndex=mi;
+    document.getElementById("imp-day").textContent=rem;
+    document.getElementById("imp-hour").textContent=hr;
+  }else{
+    // doy -> season index + day of season
+    var si=ishSi(dy),ds=((dy-1)%ISH_DPS)+1;
+    document.getElementById("ish-season").selectedIndex=si;
+    document.getElementById("ish-day").textContent=ds;
+    document.getElementById("ish-hour").textContent=hr;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+(function(){
+  var impSel=document.getElementById("imp-month");
+  for(var i=0;i<IMP_MO.length;i++){
+    var o=document.createElement("option");o.value=i;
+    o.textContent=IMP_MO[i].d===1?IMP_MO[i].n+" (interkalarny)":IMP_MO[i].n+" ("+IMP_MO[i].d+" dni)";
+    impSel.appendChild(o);
+  }
+  impSel.selectedIndex=1;
+
+  var ishSel=document.getElementById("ish-season");
+  for(var i=0;i<ISH_SS.length;i++){
+    var o=document.createElement("option");o.value=i;
+    o.textContent=ISH_SS[i]+" ("+ISH_DPS+" dni)";
+    ishSel.appendChild(o);
+  }
+
+  setNowRL();
+  restoreFromMem();
+  updateMemInfo();
+  showDomResult();
+})();
+</script>
+</body>
+</html>
