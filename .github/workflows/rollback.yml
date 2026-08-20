@@ -1,0 +1,55 @@
+name: Rollback PWA
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Tag do przywrocenia (np. v1.9.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Pobierz zrodlo z wskazanego tagu
+        run: |
+          git fetch --tags origin
+          git checkout "${{ inputs.ref }}" -- src/
+
+      - name: Wersja i data z tagu
+        id: meta
+        run: |
+          echo "version=${{ inputs.ref }}" | sed 's/^version=v/version=/' >> "$GITHUB_OUTPUT"
+          echo "date=$(git log -1 --format=%cs "${{ inputs.ref }}")" >> "$GITHUB_OUTPUT"
+
+      - name: Rebuild wskaznika (deterministyczny = identyczne artefakty)
+        run: VERSION=${{ steps.meta.outputs.version }} RELEASED_AT=${{ steps.meta.outputs.date }} node scripts/build.mjs
+
+      - name: Verify
+        run: node scripts/verify.mjs
+
+      - name: Publikacja rollbacku
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sw.js manifest.webmanifest versions.json icons/ app.*.html src/
+          if git diff --cached --quiet; then
+            echo "Wskaznik juz wskazuje na ${{ inputs.ref }}."
+          else
+            git commit -m "Rollback do ${{ inputs.ref }} [skip ci]"
+            git push origin main
+          fi
