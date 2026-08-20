@@ -4,64 +4,30 @@
   <meta charset="utf-8">
   <title>Arkadia Web Standalone Tools</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!--
-    Zmień tylko tę nazwę pliku poniżej, gdy wrzucisz nową wersję:
-    const APP_FILE = "arkadia_tools_v1_8.html";
-  -->
-
+  <meta name="theme-color" content="#1a1a2e">
+  <!-- PLIK GENEROWANY PRZEZ scripts/build.mjs - nie edytowac recznie -->
   <script>
-    const APP_FILE = "arkadia_tools_v1_8.html";
-
+    const APP_FILE = "app.7155a2b2.html";
     const targetUrl = APP_FILE + window.location.search + window.location.hash;
-
     window.addEventListener("DOMContentLoaded", () => {
       const link = document.getElementById("app-link");
-      if (link) {
-        link.href = targetUrl;
-        link.textContent = targetUrl;
-      }
+      if (link) { link.href = targetUrl; link.textContent = targetUrl; }
     });
-
     window.location.replace(targetUrl);
   </script>
-
   <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
-    }
-
-    main {
-      max-width: 560px;
-      padding: 32px;
-      text-align: center;
-    }
-
-    a {
-      color: #58a6ff;
-    }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center;
+           font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+           background: #0d1117; color: #e6edf3; }
+    main { max-width: 560px; padding: 32px; text-align: center; }
+    a { color: #58a6ff; }
   </style>
 </head>
 <body>
   <main>
     <h1>Przekierowanie…</h1>
-    <p>
-      Jeżeli strona nie otworzy się automatycznie,
-      <a id="app-link" href="arkadia_tools_v1_8.html">kliknij tutaj</a>.
-    </p>
-
-    <noscript>
-      <p>
-        JavaScript jest wyłączony. Otwórz ręcznie:
-        <a href="arkadia_tools_v1_8.html">arkadia_tools_v1_8.html</a>
-      </p>
-    </noscript>
+    <p>Jeżeli strona nie otworzy się automatycznie, <a id="app-link" href="app.7155a2b2.html">kliknij tutaj</a>.</p>
+    <noscript><p>JavaScript jest wyłączony. Otwórz ręcznie: <a href="app.7155a2b2.html">app.7155a2b2.html</a></p></noscript>
   </main>
 </body>
 </html>
