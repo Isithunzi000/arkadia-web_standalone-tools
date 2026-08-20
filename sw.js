@@ -1,9 +1,9 @@
 // PLIK GENEROWANY PRZEZ scripts/build.mjs - nie edytowac recznie
-const SW_VERSION = "1.10.0+72860f0a";
-const APP_CACHE = 'ark-app-' + "1.10.0-72860f0a";
+const SW_VERSION = "1.10.1+6f47096e";
+const APP_CACHE = 'ark-app-' + "1.10.1-6f47096e";
 const POINTER_CACHE = 'ark-pointer-v1';
 const PRECACHE = [
-  "app.72860f0a.html",
+  "app.6f47096e.html",
   "manifest.webmanifest",
   "icons/apple-touch-icon.png",
   "icons/icon-192.png",
