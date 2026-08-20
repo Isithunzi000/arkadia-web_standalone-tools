@@ -16,6 +16,7 @@ const RELEASED_AT = process.env.RELEASED_AT || null; // YYYY-MM-DD z tagu; null 
 let app = readFileSync(join(ROOT, 'src/app.html'), 'utf8');
 if (!app.includes('__APP_VERSION__')) throw new Error('Brak placeholdera __APP_VERSION__ w src/app.html');
 app = app.replaceAll('__APP_VERSION__', VERSION);
+app = app.replaceAll('__RELEASED_AT__', RELEASED_AT || 'dev');
 const hash = createHash('sha256').update(app, 'utf8').digest('hex').slice(0, 8);
 const APP_FILE = `app.${hash}.html`;
 
