@@ -1051,14 +1051,31 @@ function restoreFromMem(){
   if(!("serviceWorker" in navigator))return;
   var toast=document.getElementById("pwa-toast");
   function show(){toast.classList.add("show");}
+  // Nawigacja do AKTUALNEJ wersji apki (location.reload() zostalby na starym pliku app.<hash>.html,
+  // bo pliki z hashem sa cache-first i stara wersja jest trzymana dla rollbacku).
+  function goToCurrent(){
+    fetch("versions.json",{cache:"no-store"}).then(function(r){return r.json();}).then(function(vj){
+      var f=vj&&vj.current;
+      if(f&&location.pathname.indexOf("/"+f)===-1){location.replace(f+location.search+location.hash);}
+      else{location.reload();}
+    }).catch(function(){location.replace("index.html"+location.search+location.hash);});
+  }
   document.getElementById("pwa-reload").addEventListener("click",function(){
     if(window._pwaWaiting){window._pwaWaiting.postMessage("SKIP_WAITING");}
-    else{location.reload();}
+    else{goToCurrent();}
   });
   var reloading=false;
   navigator.serviceWorker.addEventListener("controllerchange",function(){
-    if(reloading)return;reloading=true;location.reload();
+    if(reloading)return;reloading=true;goToCurrent();
   });
+  // Self-heal: przy kazdym starcie sprawdz, czy siedzimy na aktualnym pliku apki
+  // (wyciaga uzytkownikow utknietych na starym hashu po zepsutym odswiezaniu).
+  try{
+    var selfFile=location.pathname.split("/").pop();
+    fetch("versions.json",{cache:"no-store"}).then(function(r){return r.json();}).then(function(vj){
+      if(vj&&vj.current&&vj.current!==selfFile){location.replace(vj.current+location.search+location.hash);}
+    }).catch(function(){});
+  }catch(e){}
   navigator.serviceWorker.register("sw.js").then(function(reg){
     if(reg.waiting){window._pwaWaiting=reg.waiting;show();}
     reg.addEventListener("updatefound",function(){
