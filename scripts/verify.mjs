@@ -39,6 +39,7 @@ ok(sw.includes(vj.current.replace('.html', '').split('.')[1]), 'sw.js: nie preca
 const app = readFileSync(join(ROOT, vj.current), 'utf8');
 ok(!app.includes('__APP_VERSION__'), 'aplikacja: niewstrzyknieta wersja');
 ok(!app.includes('__RELEASED_AT__'), 'aplikacja: niewstrzyknieta data release');
+ok(/class="ver">[^|<]*\|\s*(\d{2}-\d{2}-\d{4}|dev)\s*</.test(app), 'aplikacja: stopka - data nie jest dd-mm-yyyy');
 ok(app.includes('serviceWorker'), 'aplikacja: brak rejestracji SW');
 ok(app.includes('manifest.webmanifest'), 'aplikacja: brak linku do manifestu');
 
