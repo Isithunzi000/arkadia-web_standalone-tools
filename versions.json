@@ -1,5 +1,5 @@
 {
-  "current": "app.6f47096e.html",
+  "current": "app.4e27ea3a.html",
   "versions": [
     {
       "version": "1.10.0",
@@ -20,6 +20,11 @@
       "version": "1.9.1",
       "file": "app.702f16e1.html",
       "releasedAt": "2026-08-20"
+    },
+    {
+      "version": "1.10.2",
+      "file": "app.4e27ea3a.html",
+      "releasedAt": "2026-08-21"
     }
   ]
 }
