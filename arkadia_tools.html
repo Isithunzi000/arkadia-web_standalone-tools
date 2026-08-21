@@ -6,7 +6,7 @@
 <title>Arkadia MUD - Narzedzia</title>
 <meta name="description" content="Kalendarz RL-IG (Imperium, Ishtar) i przelicznik walut dla gry MUD Arkadia. Dziala offline.">
 <meta name="theme-color" content="#1a1a2e">
-<meta name="arkadia-build" content="1.9.0">
+<meta name="arkadia-build" content="1.11.0">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -362,7 +362,7 @@ Ustaw czas RL i IG, kliknij Oblicz.</span></div>
   </div>
 </div>
 
-<div class="ver">Arkadia Narzędzia v1.8 | 15-08-2026</div>
+<div class="ver">Arkadia Narzędzia v1.11.0 | 21-08-2026</div>
 
 <script>
 "use strict";
@@ -526,16 +526,16 @@ function impGN(day,hour,min,baseMs){
 //  DANE ISHTAR
 // ═══════════════════════════════════════════════════
 var ISH_SPM = 2, ISH_DPS = 45, ISH_MS = 2000;
-var ISH_SS = ["Yule","Imbaelk","Birke","Blathe","Feainn","Lammas","Velen","Saovine"];
+var ISH_SS = ["Saovine","Yule","Imbaelk","Birke","Blathe","Feainn","Lammas","Velen"]  // rok od 1 Saovine (paritet z ishtar_cal 1.8.12m);
 var ISH_DPY = ISH_SS.length * ISH_DPS;
 var ISH_MPD = 1440, ISH_YGM = ISH_DPY * ISH_MPD;
-var ISH_BELL = 135, ISH_HGM = 1440, ISH_FD = 3;
+var ISH_BELL = 180  // ostatni dzien Birke (rok od 1 Saovine), ISH_HGM = 1440, ISH_FD = 3;
 
 var ISH_FMW = [
-  {s:4,e:6},{s:28,e:30},{s:52,e:54},{s:76,e:78},{s:100,e:102},
-  {s:124,e:126},{s:148,e:150},{s:172,e:174},{s:196,e:198},
-  {s:222,e:224},{s:244,e:246},{s:268,e:270},{s:292,e:294},
-  {s:316,e:318},{s:340,e:342}
+  {s:49,e:51},{s:73,e:75},{s:97,e:99},{s:121,e:123},{s:145,e:147},
+  {s:169,e:171},{s:193,e:195},{s:217,e:219},{s:241,e:243},
+  {s:267,e:269},{s:289,e:291},{s:313,e:315},{s:337,e:339},
+  {s:1,e:3},{s:25,e:27}
 ];
 
 var ISH_SUN = {Yule:16,Imbaelk:18,Birke:19,Blathe:21,Feainn:20,Lammas:20,Velen:18,Saovine:17};
@@ -1043,7 +1043,7 @@ function restoreFromMem(){
 #pwa-version{position:fixed;right:8px;bottom:6px;font-size:10px;color:var(--fg2);opacity:.55;z-index:99;pointer-events:none;font-family:monospace}
 </style>
 <div id="pwa-toast" role="status"><span>Dostępna nowa wersja.</span><button id="pwa-reload">Odśwież</button></div>
-<div id="pwa-version">v1.9.0</div>
+<div id="pwa-version">v1.11.0</div>
 <script>
 (function(){
   var v=document.getElementById("pwa-version");

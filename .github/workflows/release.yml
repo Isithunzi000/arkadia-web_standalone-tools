@@ -1,47 +1,61 @@
-name: Release PWA
+# Release — tag v* publikuje arkadia_tools.html jako jedyny asset.
+# Guard 3-stronny: tag == stopka arkadia_tools.html == VERSION w sw.js (mismatch = exit 1).
+# Idempotencja: ponowny run dla istniejacego release nadpisuje asset (--clobber).
+name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 permissions:
   contents: write
 
 jobs:
-  build-and-publish:
+  release:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
-          fetch-depth: 0
-          fetch-tags: true
+      - name: Checkout repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Wersja i data z tagu
-        id: meta
+      - name: Ustal tag
+        id: tag
         run: |
-          echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-          echo "date=$(git log -1 --format=%cs "$GITHUB_REF_NAME" 2>/dev/null || date +%F)" >> "$GITHUB_OUTPUT"
-
-      - name: Build (deterministyczny)
-        run: VERSION=${{ steps.meta.outputs.version }} RELEASED_AT=${{ steps.meta.outputs.date }} node scripts/build.mjs
-
-      - name: Verify (brak deploya przy bledzie)
-        run: node scripts/verify.mjs
-
-      - name: Publikacja artefaktow na main (idempotentna)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html sw.js manifest.webmanifest versions.json icons/ app.*.html
-          if git diff --cached --quiet; then
-            echo "Brak zmian - artefakty identyczne (idempotentnie)."
+          set -euo pipefail
+          if [ -n "${GITHUB_REF_NAME:-}" ] && [ "${GITHUB_REF_TYPE:-}" = "tag" ]; then
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "Release ${{ github.ref_name }} [skip ci]"
-            git push origin main
+            echo "tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: "Guard: tag == stopka == sw.js VERSION"
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          VER="${TAG#v}"
+          FOOT=$(grep -oP 'Arkadia Narzędzia v\K[0-9]+\.[0-9]+\.[0-9]+' arkadia_tools.html | head -1)
+          META=$(grep -oP 'name="arkadia-build" content="\K[0-9]+\.[0-9]+\.[0-9]+' arkadia_tools.html | head -1)
+          SW=$(grep -oP 'const VERSION = "\K[0-9]+\.[0-9]+\.[0-9]+' sw.js | head -1)
+          echo "tag=$TAG  stopka=$FOOT  meta=$META  sw=$SW"
+          if [ "$FOOT" != "$VER" ] || [ "$META" != "$VER" ] || [ "$SW" != "$VER" ]; then
+            echo "BLAD: niespojnosc wersji (tag $TAG vs stopka $FOOT vs meta $META vs sw $SW)" >&2
+            exit 1
+          fi
+
+      - name: Release z jednym assetem (arkadia_tools.html)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" arkadia_tools.html --clobber
+          else
+            gh release create "$TAG" arkadia_tools.html --title "Arkadia Narzędzia $TAG" --generate-notes
           fi
