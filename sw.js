@@ -1,69 +1,53 @@
-// PLIK GENEROWANY PRZEZ scripts/build.mjs - nie edytowac recznie
-const SW_VERSION = "1.10.2+4e27ea3a";
-const APP_CACHE = 'ark-app-' + "1.10.2-4e27ea3a";
-const POINTER_CACHE = 'ark-pointer-v1';
+// Statyczny service worker — edytowany recznie.
+// VERSION musi byc rowny wersji w stopce arkadia_tools.html (guard w release.yml).
+const VERSION = "1.11.0";
+const CACHE = "ark-tools-" + VERSION;
 const PRECACHE = [
-  "app.4e27ea3a.html",
+  "arkadia_tools.html",
   "manifest.webmanifest",
   "icons/apple-touch-icon.png",
   "icons/icon-192.png",
   "icons/icon-512.png",
   "icons/icon-maskable-512.png"
 ];
-const POINTER_URLS = ['index.html', 'versions.json', './'];
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(APP_CACHE).then((cache) => cache.addAll(PRECACHE))
-  );
+self.addEventListener("install", (event) => {
+  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)));
 });
 
-self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+// Pasek "Dostepna nowa wersja" w apce wysyla SKIP_WAITING po kliknieciu "Odswiez".
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
+  // Sprzatanie: usuwamy WSZYSTKIE inne cache (w tym legacy ark-app-* i ark-pointer-v1).
   event.waitUntil((async () => {
-    // Cleanup: zostaw biezacy cache + pointer + poprzednia wersje apki (rollback offline).
-    let keep = new Set([APP_CACHE, POINTER_CACHE]);
-    try {
-      const res = await caches.match('versions.json');
-      if (res) {
-        const vj = await res.json();
-        for (const v of (vj.versions || []).slice(-2)) keep.add('ark-app-' + v.version + '-' + v.file.split('.')[1]);
-      }
-    } catch (e) { /* brak danych = zostaw tylko biezacy */ }
     const names = await caches.keys();
-    await Promise.all(names.filter((n) => n.startsWith('ark-') && !keep.has(n)).map((n) => caches.delete(n)));
+    await Promise.all(names.filter((n) => n !== CACHE).map((n) => caches.delete(n)));
     await self.clients.claim();
   })());
 });
 
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
-  if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
-  const path = url.pathname.split('/').pop() || 'index.html';
+  if (url.origin !== self.location.origin) return;
 
-  // Wskaznik wersji: zawsze probuj siec, fallback do cache.
-  if (path === 'index.html' || path === 'versions.json' || path === 'sw.js') {
+  // Nawigacje (/, index.html, arkadia_tools.html): zawsze plik apki, cache-first.
+  if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).then((res) => {
-        if (res.ok) {
-          const clone = res.clone();
-          caches.open(POINTER_CACHE).then((c) => c.put(event.request, clone));
-        }
-        return res;
-      }).catch(() => caches.match(event.request).then((r) => r || caches.match('index.html')))
+      caches.match("arkadia_tools.html").then((r) => r || fetch("arkadia_tools.html"))
     );
     return;
   }
 
-  // Pliki z hashem i ikony: immutable, cache-first.
+  // Reszta same-origin: cache-first, przy trafieniu sieciowym dopisz do cache.
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request).then((res) => {
-      if (res.ok && (path.startsWith('app.') || url.pathname.includes('/icons/'))) {
+      if (res.ok) {
         const clone = res.clone();
-        caches.open(APP_CACHE).then((c) => c.put(event.request, clone));
+        caches.open(CACHE).then((c) => c.put(event.request, clone));
       }
       return res;
     }))
