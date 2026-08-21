@@ -11,12 +11,14 @@ import { join } from 'node:path';
 const ROOT = process.cwd();
 const VERSION = (process.env.VERSION || 'dev').replace(/^v/, '');
 const RELEASED_AT = process.env.RELEASED_AT || null; // YYYY-MM-DD z tagu; null = build lokalny
+// Stopka apki pokazuje dd-mm-yyyy (konwencja ekosystemu); versions.json zostaje ISO (sortowanie leksykograficzne).
+const RELEASED_AT_DISPLAY = RELEASED_AT ? RELEASED_AT.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$3-$2-$1') : 'dev';
 
 // 1. App: wstrzyknij wersje, policz hash z TRESCI
 let app = readFileSync(join(ROOT, 'src/app.html'), 'utf8');
 if (!app.includes('__APP_VERSION__')) throw new Error('Brak placeholdera __APP_VERSION__ w src/app.html');
 app = app.replaceAll('__APP_VERSION__', VERSION);
-app = app.replaceAll('__RELEASED_AT__', RELEASED_AT || 'dev');
+app = app.replaceAll('__RELEASED_AT__', RELEASED_AT_DISPLAY);
 const hash = createHash('sha256').update(app, 'utf8').digest('hex').slice(0, 8);
 const APP_FILE = `app.${hash}.html`;
 
