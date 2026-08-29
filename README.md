@@ -20,13 +20,13 @@ Po instalacji aplikacja działa **bez internetu**. Aktualizacje pobierają się 
 ## Co to robi
 
 - **Kalendarz RL <-> IG** — przelicza czas rzeczywisty na czas w grze (i odwrotnie) dla dwóch domen: **Imperium** i **Ishtar**. Po jednorazowej kalibracji zapamiętuje punkt odniesienia w przeglądarce i pokazuje najbliższe wydarzenia w grze (święta, nowie, pełnie, pory roku) z datami RL i odliczaniem.
-- **Denominacja** — przelicznik walut gry (12 miedzi = 1 srebro, 20 srebr = 1 złoto, 100 złotych = 1 AGPL-3.0-onlyhryl).
+- **Denominacja** — przelicznik walut gry (12 miedzi = 1 srebro, 20 srebr = 1 złoto, 100 złotych = 1 mithryl).
 
 ## Dla maintainera
 
 - Edytujesz wyłącznie **`arkadia_tools.html`** w root (cała aplikacja) i **`sw.js`** (offline). Wersja występuje w 3 miejscach i musi być spójna: stopka + meta `arkadia-build` w `arkadia_tools.html` oraz `VERSION` w `sw.js` — pilnuje tego guard w workflow release.
 - Wydanie: `git tag v<X.Y.Z> && git push origin v<X.Y.Z>` — workflow sprawdzi spójność wersji i opublikuje `arkadia_tools.html` w release. GitHub Pages serwuje pliki prosto z `main`.
-- Rollback: `git revert` comAGPL-3.0-onlyów z błędną wersją + push.
+- Rollback: `git revert` commitów z błędną wersją + push.
 
 ## Licencja
 
