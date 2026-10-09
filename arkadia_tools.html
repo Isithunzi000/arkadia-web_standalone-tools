@@ -453,8 +453,14 @@ var IMP_GN = [
 ];
 // Okno RL liczone wg zegara Europe/Warsaw (jak imperium_cal 1.8.12): niezalezne
 // od strefy czasowej przegladarki i od zmiany czasu letni/zimowy.
-// Noc Geheimnisnacht = sama noc pelni (offset 0 dni).
-var GN_WS = 19*60, GN_WE = 21*60, GN_PR = 20*60, GN_YRS = 4, GN_CLU = 180*60*1000;
+// Noc Geheimnisnacht = nastepna noc po pelni (offset +1 doba), kanon v3
+// (dane empiryczne 10.2026, paritet imperium_cal/dargoth). Prime 20:50 wg
+// zegara RL Warszawa - zaobserwowane zegary RL eventu: 20:55 i 20:45.
+var GN_WS = 19*60, GN_WE = 21*60, GN_PR = 1250, GN_YRS = 4, GN_CLU = 180*60*1000;
+
+// Now (Mannslieb): moment fazowy = 03:00 IG doby nastepujacej po dobie z
+// tabeli NEW_MOONS (kanon v3, dane empiryczne 10.2026).
+var NM_FLIP = 3;
 
 var GN_CLOCK_FMT = new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",hour:"2-digit",minute:"2-digit",hourCycle:"h23"});
 function warsawClockMinutes(realMs){
@@ -498,8 +504,8 @@ function impGN(day,hour,min,baseMs){
   var yearMin=IMP_YR*IMP_MPD,cands=[];
   for(var fi=0;fi<IMP_GN.length;fi++){
     var fdoy=impDoy(IMP_GN[fi].m,IMP_GN[fi].d);if(fdoy==null)continue;
-    // Noc Geheimnisnacht = sama noc pelni (offset 0 dni).
-    var gnDoy=impNorm(fdoy);
+    // Noc Geheimnisnacht = nastepna noc po pelni (offset +1 doba).
+    var gnDoy=impNorm(fdoy+1);
     var gnSs=impSunset(gnDoy),gnSr=impSunrise(impNorm(gnDoy+1));
     var nd=(24-gnSs+gnSr)*60;
     var baseDelta=impDelta(day,hour,min,gnDoy,gnSs,0);
@@ -520,6 +526,32 @@ function impGN(day,hour,min,baseMs){
   var best=null;
   for(var i=0;i<cands.length;i++){var c=cands[i];if(c.realMs>t0+GN_CLU)continue;if(best===null||c.dist<best.dist||(c.dist===best.dist&&c.realMs<best.realMs))best=c;}
   return best?{trwa:false,dMin:best.dMin,nightDoy:best.nightDoy}:null;
+}
+
+// Pierwsza bezksiezycowa noc: [zachod(d+1), wschod(d+2)]. TRWA gdy start
+// mniej niz nightDuration temu (delta zawinela sie przez koniec roku).
+function impNewMoonNight(day,hour,min){
+  var yearMin=IMP_YR*IMP_MPD,best=null;
+  for(var i=0;i<IMP_SNM.length;i++){
+    var nd=impNorm(IMP_SNM[i]+1);
+    var ss=impSunset(nd),sr=impSunrise(impNorm(nd+1));
+    var ndur=(24-ss+sr)*60;
+    var base=impDelta(day,hour,min,nd,ss,0);
+    if(base>yearMin-ndur&&base<yearMin)return{trwa:true,dMin:base-(yearMin-ndur),nightDoy:nd};
+    if(best===null||base<best.dMin)best={dMin:base,nightDoy:nd};
+  }
+  return best;
+}
+
+// Moment fazowy nowu: minimum delty IG do (d+1, 03:00).
+function impNewMoonFlip(day,hour,min){
+  var best=null;
+  for(var i=0;i<IMP_SNM.length;i++){
+    var fd=impNorm(IMP_SNM[i]+1);
+    var base=impDelta(day,hour,min,fd,NM_FLIP,0);
+    if(best===null||base<best.dMin)best={dMin:base,doy:fd};
+  }
+  return best;
 }
 
 // ═══════════════════════════════════════════════════
@@ -599,38 +631,24 @@ function impEvents(day,hour,min,now){
   if(sel){L.push("  "+sel.n);impTiming(L,day,hour,min,baseMs,sel.doy);}
 
   L.push("\nNajbliższe wydarzenia księżycowe:");
-  var ndMoon=impNorm(day);
-  var todayNM=(IMP_NM_IDX[ndMoon]!==undefined)?IMP_NM_IDX[ndMoon]:-1;
-  if(todayNM>=0){
-    var sh=impSunset(ndMoon);
-    L.push("  *** Nów astronomiczny ***");
-    impTiming(L,day,hour,min,baseMs,ndMoon);
-    if(typeof sh==="number"&&hour>=sh){
-      var mEnd=(24-hour)*60-min;
-      L.push("  +++ Nów widoczny TERAZ +++");
-      L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+mEnd*IMP_MS))+")");
-      L.push("    Zachód:  "+p2(sh)+":00 IG");
-    }else if(typeof sh==="number"){
-      var mSun=(sh-hour)*60-min;
-      L.push("  +++ Nów widoczny dziś po zachodzie słońca +++");
-      L.push("    Data RL: "+fDt(new Date(baseMs+mSun*IMP_MS)));
-      L.push("    Zachód:  "+p2(sh)+":00 IG");
-      L.push("    Za:      "+fRD(impToRL(mSun)));
-    }
+  // Now (kanon v3): moment fazowy = 03:00 IG doby nastepujacej po dobie
+  // z tabeli NEW_MOONS; pierwsza bezksiezycowa noc = [zachod(d+1), wschod(d+2)].
+  var flip=impNewMoonFlip(day,hour,min);
+  L.push("  *** Nów astronomiczny ***");
+  L.push("    Data RL: "+fDt(new Date(baseMs+flip.dMin*IMP_MS)));
+  L.push("    Za:      "+fRD(impToRL(flip.dMin)));
+
+  var nn=impNewMoonNight(day,hour,min);
+  var nnMd=impMD(nn.nightDoy);
+  var nnLbl=nnMd?(nnMd.m+" "+nnMd.d+", dzień "+nn.nightDoy):("dzień "+nn.nightDoy);
+  L.push("  +++ Nów widoczny (pierwsza bezksiężycowa noc) +++");
+  if(nn.trwa){
+    L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+nn.dMin*IMP_MS))+")");
+    L.push("    "+nnLbl);
   }else{
-    var newDoy=impNext(day,hour,min,IMP_SNM);
-    var newDm=impDelta(day,hour,min,newDoy,0,0);
-    L.push("  *** Nów astronomiczny ***");
-    L.push("    Data RL: "+fDt(new Date(baseMs+newDm*IMP_MS)));
-    L.push("    Za:      "+fRD(impToRL(newDm)));
-    var sh2=impSunset(newDoy);
-    if(typeof sh2==="number"){
-      var sunDm=impDelta(day,hour,min,newDoy,sh2,0);
-      L.push("  +++ Nów widoczny po zachodzie słońca +++");
-      L.push("    Data RL: "+fDt(new Date(baseMs+sunDm*IMP_MS)));
-      L.push("    Zachód:  "+p2(sh2)+":00 IG");
-      L.push("    Za:      "+fRD(impToRL(sunDm)));
-    }
+    L.push("    Data RL: "+fDt(new Date(baseMs+nn.dMin*IMP_MS)));
+    L.push("    Za:      "+fRD(impToRL(nn.dMin)));
+    L.push("    "+nnLbl);
   }
 
   var ndFull=impNorm(day);
