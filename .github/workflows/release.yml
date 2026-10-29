@@ -35,6 +35,9 @@ jobs:
             echo "tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Test kontraktu wersji, matematyki i cache PWA
+        run: node --test tests/release-contract.mjs
+
       - name: "Guard: tag == stopka == sw.js VERSION"
         env:
           TAG: ${{ steps.tag.outputs.tag }}

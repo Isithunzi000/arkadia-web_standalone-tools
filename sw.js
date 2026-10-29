@@ -1,6 +1,6 @@
 // Statyczny service worker — edytowany recznie.
 // VERSION musi byc rowny wersji w stopce arkadia_tools.html (guard w release.yml).
-const VERSION = "1.11.1";
+const VERSION = "1.12.0";
 const CACHE = "ark-tools-" + VERSION;
 const PRECACHE = [
   "arkadia_tools.html",
