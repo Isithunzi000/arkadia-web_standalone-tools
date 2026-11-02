@@ -6,7 +6,7 @@
 <title>Arkadia MUD - Narzedzia</title>
 <meta name="description" content="Kalendarz RL-IG (Imperium, Ishtar) i przelicznik walut dla gry MUD Arkadia. Dziala offline.">
 <meta name="theme-color" content="#1a1a2e">
-<meta name="arkadia-build" content="1.13.0">
+<meta name="arkadia-build" content="1.13.1">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -362,7 +362,7 @@ Ustaw czas RL i IG, kliknij Oblicz.</span></div>
   </div>
 </div>
 
-<div class="ver">Arkadia Narzędzia v1.13.0 | 02-11-2026</div>
+<div class="ver">Arkadia Narzędzia v1.13.1 | 02-11-2026</div>
 
 <script>
 "use strict";
@@ -420,10 +420,10 @@ var IMP_SSD = (function(){
 
 // Granice por roku 1:1 z clock.ts (Empire) jako absolutny dzien roku.
 var IMP_SEA = [
-  {doy:18,n:"Pierwszy dzień wiosny"},
-  {doy:118,n:"Pierwszy dzień lata"},
-  {doy:218,n:"Pierwszy dzień jesieni"},
-  {doy:319,n:"Pierwszy dzień zimy"}
+  {doy:18,n:"Pierwszy dzien wiosny"},
+  {doy:118,n:"Pierwszy dzien lata"},
+  {doy:218,n:"Pierwszy dzien jesieni"},
+  {doy:319,n:"Pierwszy dzien zimy"}
 ];
 
 var IMP_INT = [
@@ -483,7 +483,7 @@ function impTiming(L,day,hour,min,baseMs,doy){
   var d=impNorm(doy);
   if(impNorm(day)===d){
     var mEnd=(24-hour)*60-min;
-    L.push("    Dziś (dzień "+d+")");
+    L.push("    Dzis (dzien "+d+")");
     L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+mEnd*IMP_MS))+")");
     return;
   }
@@ -598,10 +598,10 @@ function fGD(gm){if(gm<0)gm=0;var d=Math.floor(gm/1440),r=gm%1440,h=Math.floor(r
 // ═══════════════════════════════════════════════════
 function impEvents(day,hour,min,now){
   var L=[],bt=new Date(now.getTime());bt.setSeconds(0,0);var baseMs=bt.getTime();
-  L.push("NAJBLIŻSZE WYDARZENIA - IMPERIUM\n");
+  L.push("NAJBLIZSZE WYDARZENIA - IMPERIUM\n");
 
   var hxD=impDoy("Hexenstag",1)||1;
-  L.push("Główne święta interkalarne:");
+  L.push("Glowne swieta interkalarne:");
   L.push("  *** Hexentag ***");
   impTiming(L,day,hour,min,baseMs,hxD);
 
@@ -613,7 +613,7 @@ function impEvents(day,hour,min,now){
   var gn=impGN(day,hour,min,baseMs);
   if(gn){
     var md=impMD(gn.nightDoy);
-    var lbl=md?(md.m+" "+md.d+", dzień "+gn.nightDoy):("dzień "+gn.nightDoy);
+    var lbl=md?(md.m+" "+md.d+", dzien "+gn.nightDoy):("dzien "+gn.nightDoy);
     L.push("  *** Geheimnisnacht ("+lbl+") ***");
     if(gn.trwa){L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+gn.dMin*IMP_MS))+")");}
     else{L.push("    Data RL: "+fDt(new Date(baseMs+gn.dMin*IMP_MS)));L.push("    Za:      "+fRD(impToRL(gn.dMin)));}
@@ -627,21 +627,21 @@ function impEvents(day,hour,min,now){
   var sel=null;
   for(var i=0;i<seas.length;i++)if(seas[i].isT){sel=seas[i];break;}
   if(!sel)sel=seas.slice().sort(function(a,b){return a.dm-b.dm;})[0];
-  L.push("\nNajbliższe wydarzenie sezonowe:");
+  L.push("\nNajblizsze wydarzenie sezonowe:");
   if(sel){L.push("  "+sel.n);impTiming(L,day,hour,min,baseMs,sel.doy);}
 
-  L.push("\nNajbliższe wydarzenia księżycowe:");
+  L.push("\nNajblizsze wydarzenia ksiezycowe:");
   // Now (kanon v3): moment fazowy = 03:00 IG doby nastepujacej po dobie
   // z tabeli NEW_MOONS; pierwsza bezksiezycowa noc = [zachod(d+1), wschod(d+2)].
   var flip=impNewMoonFlip(day,hour,min);
-  L.push("  *** Nów astronomiczny ***");
+  L.push("  *** Now astronomiczny ***");
   L.push("    Data RL: "+fDt(new Date(baseMs+flip.dMin*IMP_MS)));
   L.push("    Za:      "+fRD(impToRL(flip.dMin)));
 
   var nn=impNewMoonNight(day,hour,min);
   var nnMd=impMD(nn.nightDoy);
-  var nnLbl=nnMd?(nnMd.m+" "+nnMd.d+", dzień "+nn.nightDoy):("dzień "+nn.nightDoy);
-  L.push("  +++ Nów widoczny (pierwsza bezksiężycowa noc) +++");
+  var nnLbl=nnMd?(nnMd.m+" "+nnMd.d+", dzien "+nn.nightDoy):("dzien "+nn.nightDoy);
+  L.push("  +++ Now widoczny +++");
   if(nn.trwa){
     L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+nn.dMin*IMP_MS))+")");
     L.push("    "+nnLbl);
@@ -653,7 +653,7 @@ function impEvents(day,hour,min,now){
 
   var ndFull=impNorm(day);
   var fullDoy=(IMP_SFM.indexOf(ndFull)>=0)?ndFull:impNext(day,hour,min,IMP_SFM);
-  L.push("  Pełnia astronomiczna");
+  L.push("  Pelnia astronomiczna");
   impTiming(L,day,hour,min,baseMs,fullDoy);
 
   var oth=[];
@@ -665,7 +665,7 @@ function impEvents(day,hour,min,now){
     oth.push({n:IMP_INT[i].n,doy:doy2,sk:isT?-1:impDelta(day,hour,min,doy2,0,0)});
   }
   oth.sort(function(a,b){return a.sk-b.sk;});
-  L.push("\nInne święta interkalarne:");
+  L.push("\nInne swieta interkalarne:");
   for(var i=0;i<oth.length;i++){L.push("  "+oth[i].n);impTiming(L,day,hour,min,baseMs,oth[i].doy);}
 
   return L.join("\n");
@@ -676,7 +676,7 @@ function impEvents(day,hour,min,now){
 // ═══════════════════════════════════════════════════
 function ishEvents(day,hour,min,now){
   var L=[],ms=now.getTime(),nGm=ishGm(day,hour,min);
-  L.push("NAJBLIŻSZE WYDARZENIA - ISHTAR\n");
+  L.push("NAJBLIZSZE WYDARZENIA - ISHTAR\n");
 
   function mainMag(name,eD,eH,wGm,extra){
     var st=ishGm(eD,eH,0),act=ishIn(nGm,st,wGm);
@@ -688,12 +688,12 @@ function ishEvents(day,hour,min,now){
 
   var bDk=ishDusk(ISH_BELL),svD=ishBDay("Saovine"),svDk=ishDusk(svD);
   var mm=[
-    {name:"Belleteyn",eD:ISH_BELL,eH:bDk,extra:" (dzień "+ISH_BELL+")"},
+    {name:"Belleteyn",eD:ISH_BELL,eH:bDk,extra:" (dzien "+ISH_BELL+")"},
     {name:"Saovine",eD:svD,eH:svDk,extra:""}
   ];
   function mmKey(o){var st=ishGm(o.eD,o.eH,0);return ishIn(nGm,st,ISH_HGM)?0:ishDelta(day,hour,min,o.eD,o.eH,0);}
   mm.sort(function(a,b){return mmKey(a)-mmKey(b);});
-  L.push("Główne święta magiczne:");
+  L.push("Glowne swieta magiczne:");
   for(var i=0;i<mm.length;i++)mainMag(mm[i].name,mm[i].eD,mm[i].eH,ISH_HGM,mm[i].extra);
 
   var ev=[];
@@ -718,9 +718,9 @@ function ishEvents(day,hour,min,now){
   }
   if(fmA){
     var ue=ishUE(nGm,fmA.st,fmA.wGm);
-    ev.push({name:"Pełnia księżyca",kind:"ksiezycowe",emph:true,sk:0,act:true,dt:now,rm:0,eRl:new Date(ms+ue*ISH_MS),dtE:null});
+    ev.push({name:"Pelnia ksiezyca",kind:"ksiezycowe",emph:true,sk:0,act:true,dt:now,rm:0,eRl:new Date(ms+ue*ISH_MS),dtE:null});
   }else if(fmB){
-    ev.push({name:"Pełnia księżyca",kind:"ksiezycowe",emph:true,sk:fmB.delta,act:false,dt:new Date(ms+fmB.delta*ISH_MS),rm:ishToRL(fmB.delta),eRl:null,dtE:null});
+    ev.push({name:"Pelnia ksiezyca",kind:"ksiezycowe",emph:true,sk:fmB.delta,act:false,dt:new Date(ms+fmB.delta*ISH_MS),rm:ishToRL(fmB.delta),eRl:null,dtE:null});
   }
 
   var fwGm=ISH_FD*ISH_MPD,fts=[];
@@ -737,8 +737,8 @@ function ishEvents(day,hour,min,now){
 
   ev.sort(function(a,b){return a.sk-b.sk;});
 
-  var kL={astronomiczne:"święto astronomiczne",magiczne:"święto magiczne",ksiezycowe:"wydarzenie księżycowe",festyn:"festyn"};
-  L.push("\nInne najbliższe wydarzenia:");
+  var kL={astronomiczne:"swieto astronomiczne",magiczne:"swieto magiczne",ksiezycowe:"wydarzenie ksiezycowe",festyn:"festyn"};
+  L.push("\nInne najblizsze wydarzenia:");
   for(var i=0;i<Math.min(10,ev.length);i++){
     var e=ev[i],lbl=kL[e.kind]||e.kind;
     L.push(e.emph?"  *** "+e.name+" ("+lbl+") ***":"  "+e.name+" ("+lbl+")");
@@ -885,20 +885,20 @@ function buildOutput(dom,rlDate,ig){
       var nD=Math.floor(tot/IMP_MPD)+1,rem=tot%IMP_MPD,nH=Math.floor(rem/60),nM=rem%60;
       out+="IMPERIUM - Ekstrapolowany czas w grze\n";
       out+="============================================================\n";
-      out+="Początkowy czas IG:      Dzień "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
+      out+="Poczatkowy czas IG:      Dzien "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
       out+="Data IG:                 "+impDesc(dy)+"\n";
       out+="Timestamp RL:            "+fDtS(rlDate)+"\n";
       out+="Aktualny czas RL:        "+fDtS(now)+"\n";
       out+="Delta RL:                "+fTD(dSec)+"\n";
       out+="Delta IG:                "+fGD(dGm)+"\n";
-      out+="Ekstrapolowany czas IG:  Dzień "+nD+", godzina "+p2(nH)+":"+p2(nM)+"\n";
+      out+="Ekstrapolowany czas IG:  Dzien "+nD+", godzina "+p2(nH)+":"+p2(nM)+"\n";
       out+="Data IG:                 "+impDesc(nD)+"\n";
       out+="============================================================\n\n";
       out+=impEvents(nD,nH,nM,now);
     }else{
       out+="IMPERIUM - Czas w grze\n";
       out+="============================================================\n";
-      out+="Czas IG: Dzień "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
+      out+="Czas IG: Dzien "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
       out+="Data IG: "+impDesc(dy)+"\n";
       out+="============================================================\n\n";
       out+=impEvents(dy,hr,mn,rlDate);
@@ -912,22 +912,22 @@ function buildOutput(dom,rlDate,ig){
       var si=ishSi(nD),ds=((nD-1)%ISH_DPS)+1;
       out+="ISHTAR - Ekstrapolowany czas w grze\n";
       out+="============================================================\n";
-      out+="Początkowy czas IG:      Dzień "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
+      out+="Poczatkowy czas IG:      Dzien "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
       var isi=ishSi(dy),ids=((dy-1)%ISH_DPS)+1;
-      out+="Data IG:                 Dzień "+ids+", pora "+ISH_SS[isi]+"\n";
+      out+="Data IG:                 Dzien "+ids+", pora "+ISH_SS[isi]+"\n";
       out+="Timestamp RL:            "+fDtS(rlDate)+"\n";
       out+="Aktualny czas RL:        "+fDtS(now)+"\n";
       out+="Delta RL:                "+fTD(dSec)+"\n";
       out+="Delta IG:                "+fGD(dGm)+"\n";
-      out+="Ekstrapolowany czas IG:  Dzień "+nD+", godzina "+p2(nH)+":"+p2(nM)+"\n";
-      out+="Data IG:                 Dzień "+ds+", pora "+ISH_SS[si]+"\n";
+      out+="Ekstrapolowany czas IG:  Dzien "+nD+", godzina "+p2(nH)+":"+p2(nM)+"\n";
+      out+="Data IG:                 Dzien "+ds+", pora "+ISH_SS[si]+"\n";
       out+="============================================================\n\n";
       out+=ishEvents(nD,nH,nM,now);
     }else{
       var si=ishSi(dy),ds=((dy-1)%ISH_DPS)+1;
       out+="ISHTAR - Czas w grze\n";
       out+="============================================================\n";
-      out+="Czas IG: Dzień "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
+      out+="Czas IG: Dzien "+dy+", godzina "+p2(hr)+":"+p2(mn)+"\n";
       out+="Data IG: Dzień "+ds+", pora "+ISH_SS[si]+"\n";
       out+="============================================================\n\n";
       out+=ishEvents(dy,hr,mn,rlDate);
@@ -1061,7 +1061,7 @@ function restoreFromMem(){
 #pwa-version{position:fixed;right:8px;bottom:6px;font-size:10px;color:var(--fg2);opacity:.55;z-index:99;pointer-events:none;font-family:monospace}
 </style>
 <div id="pwa-toast" role="status"><span>Dostępna nowa wersja.</span><button id="pwa-reload">Odśwież</button></div>
-<div id="pwa-version">v1.13.0</div>
+<div id="pwa-version">v1.13.1</div>
 <script>
 (function(){
   var v=document.getElementById("pwa-version");
