@@ -6,7 +6,7 @@
 <title>Arkadia MUD - Narzedzia</title>
 <meta name="description" content="Kalendarz RL-IG (Imperium, Ishtar) i przelicznik walut dla gry MUD Arkadia. Dziala offline.">
 <meta name="theme-color" content="#1a1a2e">
-<meta name="arkadia-build" content="1.13.1">
+<meta name="arkadia-build" content="1.13.2">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -362,7 +362,7 @@ Ustaw czas RL i IG, kliknij Oblicz.</span></div>
   </div>
 </div>
 
-<div class="ver">Arkadia Narzędzia v1.13.1 | 02-11-2026</div>
+<div class="ver">Arkadia Narzędzia v1.13.2 | 02-11-2026</div>
 
 <script>
 "use strict";
@@ -588,7 +588,9 @@ function ishToRL(gm){return Math.max(0,Math.round(gm*ISH_SPM*1000/60000));}
 function p2(n){return String(n).padStart(2,"0");}
 function fRD(rm){var d=Math.floor(rm/1440),h=Math.floor((rm%1440)/60),m=rm%60;return d+"d "+h+"h "+m+"m";}
 function fRDP(rm){var d=Math.floor(rm/1440),h=Math.floor((rm%1440)/60),m=rm%60;return d+"d "+p2(h)+"h "+p2(m)+"m";}
-function fDt(dt){return p2(dt.getDate())+"-"+p2(dt.getMonth()+1)+"-"+dt.getFullYear()+" "+p2(dt.getHours())+":"+p2(dt.getMinutes());}
+var WAW_DTF=(typeof Intl!=="undefined"&&Intl.DateTimeFormat)?new Intl.DateTimeFormat("pl-PL",{timeZone:"Europe/Warsaw",hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):null;
+function fDtW(ms){var p={};var fps=WAW_DTF.formatToParts(new Date(ms));for(var i=0;i<fps.length;i++)p[fps[i].type]=fps[i].value;return p2(Number(p.day))+"-"+p2(Number(p.month))+"-"+p.year+" "+p2(Number(p.hour))+":"+p2(Number(p.minute));}
+function fDt(dt){return WAW_DTF?fDtW(dt.getTime()):p2(dt.getDate())+"-"+p2(dt.getMonth()+1)+"-"+dt.getFullYear()+" "+p2(dt.getHours())+":"+p2(dt.getMinutes());}
 function fDtS(dt){return fDt(dt)+":"+p2(dt.getSeconds());}
 function fTD(s){if(s<0)s=0;var d=Math.floor(s/86400);s%=86400;var h=Math.floor(s/3600);s%=3600;var m=Math.floor(s/60);s%=60;return d+"d:"+p2(h)+"h:"+p2(m)+"m:"+p2(s)+"s";}
 function fGD(gm){if(gm<0)gm=0;var d=Math.floor(gm/1440),r=gm%1440,h=Math.floor(r/60),m=r%60;return d+"d:"+p2(h)+"h:"+p2(m)+"m";}
@@ -1061,7 +1063,7 @@ function restoreFromMem(){
 #pwa-version{position:fixed;right:8px;bottom:6px;font-size:10px;color:var(--fg2);opacity:.55;z-index:99;pointer-events:none;font-family:monospace}
 </style>
 <div id="pwa-toast" role="status"><span>Dostępna nowa wersja.</span><button id="pwa-reload">Odśwież</button></div>
-<div id="pwa-version">v1.13.1</div>
+<div id="pwa-version">v1.13.2</div>
 <script>
 (function(){
   var v=document.getElementById("pwa-version");
