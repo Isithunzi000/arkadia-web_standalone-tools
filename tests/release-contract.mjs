@@ -16,7 +16,7 @@ function one(pattern, text, label) {
 }
 
 test('A1: matematyka kalendarza v3 ma nowa, spojna wersje aplikacji i cache', () => {
-  assert.match(html, /GN_PR\s*=\s*1250/);
+  assert.match(html, /GN_PR\s*=\s*1285/);
   assert.match(html, /function impNewMoonNight\(/);
   assert.match(html, /function impNewMoonFlip\(/);
 
