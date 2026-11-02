@@ -6,7 +6,7 @@
 <title>Arkadia MUD - Narzedzia</title>
 <meta name="description" content="Kalendarz RL-IG (Imperium, Ishtar) i przelicznik walut dla gry MUD Arkadia. Dziala offline.">
 <meta name="theme-color" content="#1a1a2e">
-<meta name="arkadia-build" content="1.13.2">
+<meta name="arkadia-build" content="1.13.3">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -362,7 +362,7 @@ Ustaw czas RL i IG, kliknij Oblicz.</span></div>
   </div>
 </div>
 
-<div class="ver">Arkadia Narzędzia v1.13.2 | 02-11-2026</div>
+<div class="ver">Arkadia Narzędzia v1.13.3 | 02-11-2026</div>
 
 <script>
 "use strict";
@@ -633,30 +633,53 @@ function impEvents(day,hour,min,now){
   if(sel){L.push("  "+sel.n);impTiming(L,day,hour,min,baseMs,sel.doy);}
 
   L.push("\nNajblizsze wydarzenia ksiezycowe:");
+  // Kolejnosc wpisow wg faktycznego startu RL (kanon: pelnia moze wypasc
+  // przed nowiem, wiec sztywna kolejnosc byla mylaca). Trwajace wydarzenie
+  // (start w przeszlosci) przed wszystkimi przyszlymi, potem niemalejaco
+  // po dolnym przedziale czasowym.
+  var moonEvents=[];
   // Now (kanon v3): moment fazowy = 03:00 IG doby nastepujacej po dobie
   // z tabeli NEW_MOONS; pierwsza bezksiezycowa noc = [zachod(d+1), wschod(d+2)].
   var flip=impNewMoonFlip(day,hour,min);
-  L.push("  *** Now astronomiczny ***");
-  L.push("    Data RL: "+fDt(new Date(baseMs+flip.dMin*IMP_MS)));
-  L.push("    Za:      "+fRD(impToRL(flip.dMin)));
+  moonEvents.push({k:flip.dMin,l:[
+    "  *** Now astronomiczny ***",
+    "    Data RL: "+fDt(new Date(baseMs+flip.dMin*IMP_MS)),
+    "    Za:      "+fRD(impToRL(flip.dMin)),
+  ]});
 
   var nn=impNewMoonNight(day,hour,min);
   var nnMd=impMD(nn.nightDoy);
   var nnLbl=nnMd?(nnMd.m+" "+nnMd.d+", dzien "+nn.nightDoy):("dzien "+nn.nightDoy);
-  L.push("  +++ Now widoczny +++");
+  var nnLines=["  +++ Now widoczny +++"];
   if(nn.trwa){
-    L.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+nn.dMin*IMP_MS))+")");
-    L.push("    "+nnLbl);
+    nnLines.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+nn.dMin*IMP_MS))+")");
+    nnLines.push("    "+nnLbl);
   }else{
-    L.push("    Data RL: "+fDt(new Date(baseMs+nn.dMin*IMP_MS)));
-    L.push("    Za:      "+fRD(impToRL(nn.dMin)));
-    L.push("    "+nnLbl);
+    nnLines.push("    Data RL: "+fDt(new Date(baseMs+nn.dMin*IMP_MS)));
+    nnLines.push("    Za:      "+fRD(impToRL(nn.dMin)));
+    nnLines.push("    "+nnLbl);
   }
+  moonEvents.push({k:nn.trwa?-1:nn.dMin,l:nnLines});
 
   var ndFull=impNorm(day);
   var fullDoy=(IMP_SFM.indexOf(ndFull)>=0)?ndFull:impNext(day,hour,min,IMP_SFM);
-  L.push("  Pelnia astronomiczna");
-  impTiming(L,day,hour,min,baseMs,fullDoy);
+  var fullLines=["  Pelnia astronomiczna"];
+  var fullKey;
+  if(impNorm(day)===impNorm(fullDoy)){
+    var mEndFull=(24-hour)*60-min;
+    fullLines.push("    Dzis (dzien "+impNorm(fullDoy)+")");
+    fullLines.push("    TRWA TERAZ (do "+fDt(new Date(baseMs+mEndFull*IMP_MS))+")");
+    fullKey=-1;
+  }else{
+    var dMinFull=impDelta(day,hour,min,fullDoy,0,0);
+    fullLines.push("    Data RL: "+fDt(new Date(baseMs+dMinFull*IMP_MS)));
+    fullLines.push("    Za:      "+fRD(impToRL(dMinFull)));
+    fullKey=dMinFull;
+  }
+  moonEvents.push({k:fullKey,l:fullLines});
+
+  moonEvents.sort(function(a,b){return a.k-b.k;});
+  for(var i=0;i<moonEvents.length;i++)for(var j=0;j<moonEvents[i].l.length;j++)L.push(moonEvents[i].l[j]);
 
   var oth=[];
   for(var i=0;i<IMP_INT.length;i++){
@@ -1063,7 +1086,7 @@ function restoreFromMem(){
 #pwa-version{position:fixed;right:8px;bottom:6px;font-size:10px;color:var(--fg2);opacity:.55;z-index:99;pointer-events:none;font-family:monospace}
 </style>
 <div id="pwa-toast" role="status"><span>Dostępna nowa wersja.</span><button id="pwa-reload">Odśwież</button></div>
-<div id="pwa-version">v1.13.2</div>
+<div id="pwa-version">v1.13.3</div>
 <script>
 (function(){
   var v=document.getElementById("pwa-version");
